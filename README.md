@@ -122,7 +122,7 @@ To join the development guild:
 
 <div align="center">
   
-  **Built with 🪄 and code by the Antigravity Agent**
+  **Built with 🪄 and code by INQ**
   
   *[ Star this repo if it increased your Mana ]*
 
