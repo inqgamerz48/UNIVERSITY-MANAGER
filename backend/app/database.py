@@ -4,15 +4,15 @@ from sqlalchemy.orm import sessionmaker
 from .config import settings
 
 # Convert postgresql:// or postgres:// to postgresql+psycopg:// for psycopg v3
-SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
-if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace(
-        "postgres://", "postgresql+psycopg://", 1
-    )
-elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace(
-        "postgresql://", "postgresql+psycopg://", 1
-    )
+# Also strip any accidental quotes or whitespace from the environment variable
+raw_url = settings.DATABASE_URL.strip().strip("'").strip('"')
+
+if raw_url.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = raw_url.replace("postgres://", "postgresql+psycopg://", 1)
+elif raw_url.startswith("postgresql://"):
+    SQLALCHEMY_DATABASE_URL = raw_url.replace("postgresql://", "postgresql+psycopg://", 1)
+else:
+    SQLALCHEMY_DATABASE_URL = raw_url
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
