@@ -11,7 +11,14 @@ from .database import engine, Base
 from .models import User, Department, Faculty, Student, Subject
 
 # Create tables (In production, use Alembic!)
-Base.metadata.create_all(bind=engine)
+try:
+    print("DEBUG: Attempting to create database tables...")
+    Base.metadata.create_all(bind=engine)
+    print("DEBUG: Database tables created successfully!")
+except Exception as e:
+    print(f"DEBUG: Error creating tables: {e}")
+    # We might want to re-raise, but let's see the error first
+    raise e
 
 # Rate limiter
 limiter = Limiter(key_func=get_remote_address)
