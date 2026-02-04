@@ -2,7 +2,7 @@ from fastapi import Header, HTTPException, Depends
 from jose import jwt, JWTError
 import httpx
 import os
-from .config import settings
+from ..config import settings
 
 async def verify_clerk_token(authorization: str = Header(None)) -> dict:
     """
