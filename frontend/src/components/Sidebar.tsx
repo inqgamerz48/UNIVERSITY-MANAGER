@@ -44,9 +44,11 @@ const navSections = [
     },
 ];
 
+import { useUserRole } from "@/hooks/use-user-role";
+
 export default function Sidebar() {
     const pathname = usePathname();
-    const userRole = "admin"; // TODO: Get from Clerk
+    const { role: userRole } = useUserRole();
 
     return (
         <aside className="sidebar">
@@ -59,7 +61,14 @@ export default function Sidebar() {
                     <div key={section.title} className="sidebar-section">
                         <div className="sidebar-title">{section.title}</div>
                         {section.items
-                            .filter((item) => !item.role || item.role === userRole)
+                            .filter((item) => {
+                                // If item has no specific role requirement, show it
+                                if (!item.role) return true;
+                                // If item requires 'admin', only show to admins
+                                if (item.role === 'admin') return userRole === 'admin';
+                                // Add more role checks here if needed in future
+                                return true;
+                            })
                             .map((item) => {
                                 const Icon = item.icon;
                                 const isActive = pathname === item.href;
