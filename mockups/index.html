@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniManager - UI Mockup Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+        }
+
+        .mockups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .mockup-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out backwards;
+        }
+
+        .mockup-card:nth-child(1) { animation-delay: 0.1s; }
+        .mockup-card:nth-child(2) { animation-delay: 0.2s; }
+        .mockup-card:nth-child(3) { animation-delay: 0.3s; }
+        .mockup-card:nth-child(4) { animation-delay: 0.4s; }
+        .mockup-card:nth-child(5) { animation-delay: 0.5s; }
+        .mockup-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .mockup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+        }
+
+        .mockup-preview {
+            width: 100%;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mockup-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(0.5);
+            transform-origin: 0 0;
+            width: 200%;
+            height: 200%;
+        }
+
+        .mockup-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .mockup-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .mockup-details h3 {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .mockup-details p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .mockup-features {
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .view-button {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .view-button:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .tech-stack {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            animation: slideUp 0.6s ease-out 0.7s backwards;
+        }
+
+        .tech-stack h2 {
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .tech-item h3 {
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .tech-item p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 UniManager UI Mockups</h1>
+            <p>Glassmorphism Design System - Complete University Management Platform</p>
+        </div>
+
+        <div class="mockups-grid">
+            <!-- Login Page -->
+            <div class="mockup-card">
+                <div class="mockup-info">
+                    <div class="mockup-icon">🔐</div>
+                    <div class="mockup-details">
+                        <h3>Login Page</h3>
+                        <p>Authentication Entry Point</p>
+                    </div>
+                </div>
+                <div class="mockup-features">
+                    <span class="feature-tag">Email Login</span>
+                    <span class="feature-tag">OAuth Support</span>
+                    <span class="feature-tag">Clerk Integration</span>
+                    <span class="feature-tag">Animated Background</span>
+                </div>
+                <a href="01_login.html" target="_blank" class="view-button">
+                    View Full Page →
+                </a>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="mockup-card">
+                <div class="mockup-info">
+                    <div class="mockup-icon">🏠</div>
+                    <div class="mockup-details">
+                        <h3>Dashboard</h3>
+                        <p>Admin Overview</p>
+                    </div>
+                </div>
+                <div class="mockup-features">
+                    <span class="feature-tag">Statistics Cards</span>
+                    <span class="feature-tag">Activity Feed</span>
+                    <span class="feature-tag">Quick Access</span>
+                    <span class="feature-tag">Role-based UI</span>
+                </div>
+                <a href="02_dashboard.html" target="_blank" class="view-button">
+                    View Full Page →
+                </a>
+            </div>
+
+            <!-- Students List -->
+            <div class="mockup-card">
+                <div class="mockup-info">
+                    <div class="mockup-icon">👨‍🎓</div>
+                    <div class="mockup-details">
+                        <h3>Students List</h3>
+                        <p>Student Management</p>
+                    </div>
+                </div>
+                <div class="mockup-features">
+                    <span class="feature-tag">Data Table</span>
+                    <span class="feature-tag">Search & Filter</span>
+                    <span class="feature-tag">Bulk Actions</span>
+                    <span class="feature-tag">Pagination</span>
+                </div>
+                <a href="03_students_list.html" target="_blank" class="view-button">
+                    View Full Page →
+                </a>
+            </div>
+
+            <!-- Add Student Form -->
+            <div class="mockup-card">
+                <div class="mockup-info">
+                    <div class="mockup-icon">➕</div>
+                    <div class="mockup-details">
+                        <h3>Add Student Form</h3>
+                        <p>Student Registration</p>
+                    </div>
+                </div>
+                <div class="mockup-features">
+                    <span class="feature-tag">Form Validation</span>
+                    <span class="feature-tag">Photo Upload</span>
+                    <span class="feature-tag">Auto-fill</span>
+                    <span class="feature-tag">Multi-section</span>
+                </div>
+                <a href="04_add_student_form.html" target="_blank" class="view-button">
+                    View Full Page →
+                </a>
+            </div>
+
+            <!-- Admin Panel -->
+            <div class="mockup-card">
+                <div class="mockup-info">
+                    <div class="mockup-icon">⚙️</div>
+                    <div class="mockup-details">
+                        <h3>Admin Panel</h3>
+                        <p>System Administration</p>
+                    </div>
+                </div>
+                <div class="mockup-features">
+                    <span class="feature-tag">User Management</span>
+                    <span class="feature-tag">Role Control</span>
+                    <span class="feature-tag">Activity Logs</span>
+                    <span class="feature-tag">System Settings</span>
+                </div>
+                <a href="05_admin_panel.html" target="_blank" class="view-button">
+                    View Full Page →
+                </a>
+            </div>
+
+            <!-- Mobile View -->
+            <div class="mockup-card">
+                <div class="mockup-info">
+                    <div class="mockup-icon">📱</div>
+                    <div class="mockup-details">
+                        <h3>Mobile View</h3>
+                        <p>Responsive Design</p>
+                    </div>
+                </div>
+                <div class="mockup-features">
+                    <span class="feature-tag">Touch Optimized</span>
+                    <span class="feature-tag">Bottom Nav</span>
+                    <span class="feature-tag">Drawer Menu</span>
+                    <span class="feature-tag">Adaptive Layout</span>
+                </div>
+                <a href="06_mobile_view.html" target="_blank" class="view-button">
+                    View Full Page →
+                </a>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="tech-stack">
+            <h2>🚀 Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h3>Frontend</h3>
+                    <p>Next.js 14 + React + TypeScript + Tailwind CSS</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Backend</h3>
+                    <p>Python FastAPI + SQLAlchemy + Alembic</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Database</h3>
+                    <p>PostgreSQL (Neon Serverless)</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Authentication</h3>
+                    <p>Clerk with RBAC Support</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Deployment</h3>
+                    <p>Vercel (Frontend) + Render (Backend)</p>
+                </div>
+                <div class="tech-item">
+                    <h3>Design</h3>
+                    <p>Glassmorphism + Animations + shadcn/ui</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>UniManager - University Management System</p>
+            <p>Glassmorphism Design © 2026</p>
+        </div>
+    </div>
+</body>
+</html>

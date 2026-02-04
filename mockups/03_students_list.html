@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniManager - Students</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 25s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .blob1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            top: -300px;
+            left: -300px;
+        }
+
+        .blob2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            bottom: -250px;
+            right: -250px;
+            animation-delay: 7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, -100px) scale(1.1); }
+            66% { transform: translate(-100px, 100px) scale(0.9); }
+        }
+
+        .container {
+            display: flex;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 30px 0;
+            position: fixed;
+        }
+
+        .sidebar-logo {
+            padding: 0 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .sidebar-logo h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 3px solid white;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-right: 15px;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .add-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-button:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input, .filter-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-select {
+            min-width: 150px;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-input:focus, .filter-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glass-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .glass-table thead tr {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .glass-table th {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        .glass-table th:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+
+        .glass-table th:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+
+        .glass-table tbody tr {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .glass-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-table td {
+            color: white;
+            padding: 20px;
+            font-size: 14px;
+        }
+
+        .glass-table td:first-child {
+            border-radius: 12px 0 0 12px;
+        }
+
+        .glass-table td:last-child {
+            border-radius: 0 12px 12px 0;
+        }
+
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .student-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .student-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .student-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .student-email {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.active {
+            background: rgba(67, 233, 123, 0.2);
+            color: #43e97b;
+            border: 1px solid rgba(67, 233, 123, 0.3);
+        }
+
+        .badge.inactive {
+            background: rgba(245, 87, 108, 0.2);
+            color: #f5576c;
+            border: 1px solid rgba(245, 87, 108, 0.3);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.edit {
+            background: rgba(74, 172, 254, 0.2);
+            border-color: rgba(74, 172, 254, 0.3);
+            color: #4facfe;
+        }
+
+        .action-btn.delete {
+            background: rgba(245, 87, 108, 0.2);
+            border-color: rgba(245, 87, 108, 0.3);
+            color: #f5576c;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .page-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .page-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <h1>🎓 UniManager</h1>
+            </div>
+            <a href="#" class="nav-item">
+                <span class="icon">🏠</span> Dashboard
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="icon">👨‍🎓</span> Students
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">👨‍🏫</span> Faculty
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">🏢</span> Departments
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">📚</span> Subjects
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">⚙️</span> Admin Panel
+            </a>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>Students Management</h1>
+                    <button class="add-button">
+                        <span>➕</span>
+                        <span>Add New Student</span>
+                    </button>
+                </div>
+                <div class="filters">
+                    <input type="text" class="search-input" placeholder="🔍 Search by name, roll number, or email...">
+                    <select class="filter-select">
+                        <option>All Departments</option>
+                        <option>Computer Science</option>
+                        <option>Mechanical</option>
+                        <option>Electronics</option>
+                        <option>Civil</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Years</option>
+                        <option>Year 1</option>
+                        <option>Year 2</option>
+                        <option>Year 3</option>
+                        <option>Year 4</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Status</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                        <option>Graduated</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Roll Number</th>
+                            <th>Department</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="student-info">
+                                    <div class="student-avatar">SJ</div>
+                                    <div class="student-details">
+                                        <div class="student-name">Sarah Johnson</div>
+                                        <div class="student-email">sarah.j@university.edu</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>CS2024001</td>
+                            <td>Computer Science</td>
+                            <td>3</td>
+                            <td>6</td>
+                            <td><span class="badge active">Active</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn edit">✏️ Edit</button>
+                                    <button class="action-btn delete">🗑️ Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="student-info">
+                                    <div class="student-avatar">MB</div>
+                                    <div class="student-details">
+                                        <div class="student-name">Michael Brown</div>
+                                        <div class="student-email">michael.b@university.edu</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>ME2024015</td>
+                            <td>Mechanical</td>
+                            <td>2</td>
+                            <td>4</td>
+                            <td><span class="badge active">Active</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn edit">✏️ Edit</button>
+                                    <button class="action-btn delete">🗑️ Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="student-info">
+                                    <div class="student-avatar">ED</div>
+                                    <div class="student-details">
+                                        <div class="student-name">Emily Davis</div>
+                                        <div class="student-email">emily.d@university.edu</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>EC2024022</td>
+                            <td>Electronics</td>
+                            <td>4</td>
+                            <td>8</td>
+                            <td><span class="badge active">Active</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn edit">✏️ Edit</button>
+                                    <button class="action-btn delete">🗑️ Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="student-info">
+                                    <div class="student-avatar">JW</div>
+                                    <div class="student-details">
+                                        <div class="student-name">James Wilson</div>
+                                        <div class="student-email">james.w@university.edu</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>CV2024007</td>
+                            <td>Civil</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td><span class="badge active">Active</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn edit">✏️ Edit</button>
+                                    <button class="action-btn delete">🗑️ Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="student-info">
+                                    <div class="student-avatar">LT</div>
+                                    <div class="student-details">
+                                        <div class="student-name">Lisa Taylor</div>
+                                        <div class="student-email">lisa.t@university.edu</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>CS2024089</td>
+                            <td>Computer Science</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td><span class="badge inactive">Inactive</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn edit">✏️ Edit</button>
+                                    <button class="action-btn delete">🗑️ Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="pagination">
+                    <button class="page-btn">←</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn">→</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

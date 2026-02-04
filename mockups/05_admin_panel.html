@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniManager - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: float 25s infinite ease-in-out;
+            z-index: 0;
+        }
+
+        .blob1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            top: -300px;
+            left: -300px;
+        }
+
+        .blob2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            bottom: -250px;
+            right: -250px;
+            animation-delay: 7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, -100px) scale(1.1); }
+            66% { transform: translate(-100px, 100px) scale(0.9); }
+        }
+
+        .container {
+            display: flex;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 280px;
+            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 30px 0;
+            position: fixed;
+        }
+
+        .sidebar-logo {
+            padding: 0 25px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .sidebar-logo h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 3px solid white;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-right: 15px;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .page-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        .page-title {
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        .panel-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .panel-section.full-width {
+            grid-column: 1 / -1;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-action {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .section-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* User Management Table */
+        .users-table {
+            width: 100%;
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .user-row:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .user-email {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+        }
+
+        .role-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-admin {
+            background: rgba(245, 87, 108, 0.2);
+            color: #f5576c;
+            border: 1px solid rgba(245, 87, 108, 0.3);
+        }
+
+        .role-faculty {
+            background: rgba(74, 172, 254, 0.2);
+            color: #4facfe;
+            border: 1px solid rgba(74, 172, 254, 0.3);
+        }
+
+        .role-student {
+            background: rgba(67, 233, 123, 0.2);
+            color: #43e97b;
+            border: 1px solid rgba(67, 233, 123, 0.3);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* System Stats */
+        .stats-mini-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .mini-stat {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .mini-stat:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .mini-stat-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .mini-stat-value {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .mini-stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+        }
+
+        /* Quick Actions */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .quick-action {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .quick-action-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .quick-action-label {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* System Settings */
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .setting-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .setting-icon {
+            font-size: 24px;
+        }
+
+        .setting-details h4 {
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .setting-details p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::before {
+            left: 27px;
+        }
+
+        /* Activity Log */
+        .activity-log {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .log-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .log-icon.success {
+            background: rgba(67, 233, 123, 0.2);
+            color: #43e97b;
+        }
+
+        .log-icon.warning {
+            background: rgba(254, 225, 64, 0.2);
+            color: #fee140;
+        }
+
+        .log-icon.error {
+            background: rgba(245, 87, 108, 0.2);
+            color: #f5576c;
+        }
+
+        .log-content {
+            flex: 1;
+        }
+
+        .log-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .log-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .log-time {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-logo">
+                <h1>🎓 UniManager</h1>
+            </div>
+            <a href="#" class="nav-item">
+                <span class="icon">🏠</span> Dashboard
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">👨‍🎓</span> Students
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">👨‍🏫</span> Faculty
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">🏢</span> Departments
+            </a>
+            <a href="#" class="nav-item">
+                <span class="icon">📚</span> Subjects
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="icon">⚙️</span> Admin Panel
+            </a>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">⚙️ Admin Control Panel</h1>
+                <p class="page-subtitle">Manage users, permissions, and system settings</p>
+            </div>
+
+            <div class="content-grid">
+                <!-- User Management -->
+                <div class="panel-section full-width">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>👥</span>
+                            <span>User Management</span>
+                        </h2>
+                        <button class="section-action">+ Add User</button>
+                    </div>
+
+                    <div class="users-table">
+                        <div class="user-row">
+                            <div class="user-info">
+                                <div class="user-avatar">JD</div>
+                                <div class="user-details">
+                                    <div class="user-name">John Doe</div>
+                                    <div class="user-email">john.doe@university.edu</div>
+                                </div>
+                            </div>
+                            <span class="role-badge role-admin">Admin</span>
+                            <div class="user-actions">
+                                <div class="action-icon">✏️</div>
+                                <div class="action-icon">🗑️</div>
+                            </div>
+                        </div>
+
+                        <div class="user-row">
+                            <div class="user-info">
+                                <div class="user-avatar">MS</div>
+                                <div class="user-details">
+                                    <div class="user-name">Dr. Michael Smith</div>
+                                    <div class="user-email">m.smith@university.edu</div>
+                                </div>
+                            </div>
+                            <span class="role-badge role-faculty">Faculty</span>
+                            <div class="user-actions">
+                                <div class="action-icon">✏️</div>
+                                <div class="action-icon">🗑️</div>
+                            </div>
+                        </div>
+
+                        <div class="user-row">
+                            <div class="user-info">
+                                <div class="user-avatar">SJ</div>
+                                <div class="user-details">
+                                    <div class="user-name">Sarah Johnson</div>
+                                    <div class="user-email">sarah.j@university.edu</div>
+                                </div>
+                            </div>
+                            <span class="role-badge role-student">Student</span>
+                            <div class="user-actions">
+                                <div class="action-icon">✏️</div>
+                                <div class="action-icon">🗑️</div>
+                            </div>
+                        </div>
+
+                        <div class="user-row">
+                            <div class="user-info">
+                                <div class="user-avatar">ED</div>
+                                <div class="user-details">
+                                    <div class="user-name">Prof. Emily Davis</div>
+                                    <div class="user-email">e.davis@university.edu</div>
+                                </div>
+                            </div>
+                            <span class="role-badge role-faculty">Faculty</span>
+                            <div class="user-actions">
+                                <div class="action-icon">✏️</div>
+                                <div class="action-icon">🗑️</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="panel-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>⚡</span>
+                            <span>Quick Actions</span>
+                        </h2>
+                    </div>
+
+                    <div class="quick-actions-grid">
+                        <div class="quick-action">
+                            <div class="quick-action-icon">📊</div>
+                            <div class="quick-action-label">Generate Reports</div>
+                        </div>
+                        <div class="quick-action">
+                            <div class="quick-action-icon">💾</div>
+                            <div class="quick-action-label">Backup Data</div>
+                        </div>
+                        <div class="quick-action">
+                            <div class="quick-action-icon">📧</div>
+                            <div class="quick-action-label">Send Emails</div>
+                        </div>
+                        <div class="quick-action">
+                            <div class="quick-action-icon">📥</div>
+                            <div class="quick-action-label">Import Data</div>
+                        </div>
+                        <div class="quick-action">
+                            <div class="quick-action-icon">📤</div>
+                            <div class="quick-action-label">Export Data</div>
+                        </div>
+                        <div class="quick-action">
+                            <div class="quick-action-icon">🔧</div>
+                            <div class="quick-action-label">Maintenance</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Statistics -->
+                <div class="panel-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>📈</span>
+                            <span>System Statistics</span>
+                        </h2>
+                    </div>
+
+                    <div class="stats-mini-grid">
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon">👥</div>
+                            <div class="mini-stat-value">3,189</div>
+                            <div class="mini-stat-label">Total Users</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon">✅</div>
+                            <div class="mini-stat-value">3,042</div>
+                            <div class="mini-stat-label">Active Users</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon">🔒</div>
+                            <div class="mini-stat-value">12</div>
+                            <div class="mini-stat-label">Admins</div>
+                        </div>
+                        <div class="mini-stat">
+                            <div class="mini-stat-icon">💾</div>
+                            <div class="mini-stat-value">2.4 GB</div>
+                            <div class="mini-stat-label">Storage Used</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div class="panel-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>⚙️</span>
+                            <span>System Settings</span>
+                        </h2>
+                    </div>
+
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-icon">🔔</div>
+                                <div class="setting-details">
+                                    <h4>Email Notifications</h4>
+                                    <p>Send system notifications via email</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-icon">🔐</div>
+                                <div class="setting-details">
+                                    <h4>Two-Factor Authentication</h4>
+                                    <p>Require 2FA for admin accounts</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-icon">📝</div>
+                                <div class="setting-details">
+                                    <h4>Activity Logging</h4>
+                                    <p>Track all system activities</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch active"></div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-icon">🌐</div>
+                                <div class="setting-details">
+                                    <h4>Public Registration</h4>
+                                    <p>Allow public signup for students</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Log -->
+                <div class="panel-section">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <span>📋</span>
+                            <span>Recent Activity Log</span>
+                        </h2>
+                        <button class="section-action">View All</button>
+                    </div>
+
+                    <div class="activity-log">
+                        <div class="log-item">
+                            <div class="log-icon success">✓</div>
+                            <div class="log-content">
+                                <div class="log-title">User Role Updated</div>
+                                <div class="log-description">Admin changed Sarah Johnson's role to Student</div>
+                                <div class="log-time">5 minutes ago</div>
+                            </div>
+                        </div>
+
+                        <div class="log-item">
+                            <div class="log-icon success">✓</div>
+                            <div class="log-content">
+                                <div class="log-title">Database Backup Completed</div>
+                                <div class="log-description">Automated backup finished successfully (2.4 GB)</div>
+                                <div class="log-time">1 hour ago</div>
+                            </div>
+                        </div>
+
+                        <div class="log-item">
+                            <div class="log-icon warning">⚠</div>
+                            <div class="log-content">
+                                <div class="log-title">High Server Load</div>
+                                <div class="log-description">CPU usage reached 85% at peak hours</div>
+                                <div class="log-time">2 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="log-item">
+                            <div class="log-icon success">✓</div>
+                            <div class="log-content">
+                                <div class="log-title">New User Created</div>
+                                <div class="log-description">Admin added Dr. Michael Smith as Faculty</div>
+                                <div class="log-time">3 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="log-item">
+                            <div class="log-icon error">✕</div>
+                            <div class="log-content">
+                                <div class="log-title">Failed Login Attempt</div>
+                                <div class="log-description">Multiple failed login attempts from IP 192.168.1.100</div>
+                                <div class="log-time">5 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
