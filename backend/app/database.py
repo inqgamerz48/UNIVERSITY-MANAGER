@@ -3,9 +3,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from .config import settings
 
-# Convert postgresql:// to postgresql+psycopg:// for psycopg v3
+# Convert postgresql:// or postgres:// to postgresql+psycopg:// for psycopg v3
 SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
-if SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace(
+        "postgres://", "postgresql+psycopg://", 1
+    )
+elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
     SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace(
         "postgresql://", "postgresql+psycopg://", 1
     )
