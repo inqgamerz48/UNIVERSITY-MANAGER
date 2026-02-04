@@ -59,10 +59,11 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
-from .routers import students_router, faculty_router, departments_router, subjects_router, users_router
+from .routers import students_router, faculty_router, departments_router, subjects_router, users_router, stats_router
 
 app.include_router(students_router, prefix="/api/students", tags=["students"])
 app.include_router(faculty_router, prefix="/api/faculty", tags=["faculty"])
 app.include_router(departments_router, prefix="/api/departments", tags=["departments"])
 app.include_router(subjects_router, prefix="/api/subjects", tags=["subjects"])
 app.include_router(users_router, prefix="/api/users", tags=["users"])
+app.include_router(stats_router, prefix="/api/stats", tags=["stats"])
