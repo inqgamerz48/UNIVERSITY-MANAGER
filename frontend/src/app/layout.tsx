@@ -5,8 +5,14 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
-  title: "UniManager - University Management System",
-  description: "Modern university management platform for students, faculty, and administrators",
+  title: "UniManager | Academic Excellence Meets Modern Craft",
+  description: "A premium, role-based university management system for administrators, faculty, and students. Experience the gold standard in academic operations.",
+  keywords: ["university management", "student information system", "faculty portal", "academic software", "unimanager"],
+  openGraph: {
+    title: "UniManager | Academic Excellence Meets Modern Craft",
+    description: "Streamline university operations with a premium, role-based platform.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
