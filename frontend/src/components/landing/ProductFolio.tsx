@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function ProductFolio() {
     return (
-        <div className="relative w-full max-w-6xl mx-auto mt-24 px-6 opacity-0 animate-in fade-in zoom-in duration-1000 fill-mode-forwards">
+        <div className="relative w-full max-w-6xl mx-auto mt-24 px-6">
             {/* Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-[var(--accent-gold)] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
 
