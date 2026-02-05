@@ -13,7 +13,7 @@ async def get_faculty_list(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),  # FIXED: Added max limit
     db: Session = Depends(get_db),
-    current_user: dict = Depends(verify_clerk_token)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """Get all faculty. Visible to authenticated users."""
     return crud.get_all_faculty(db, skip=skip, limit=limit)
@@ -31,7 +31,7 @@ async def create_faculty(
 async def get_faculty(
     faculty_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(verify_clerk_token)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """Get single faculty member."""
     faculty = crud.get_faculty(db, faculty_id)

@@ -13,7 +13,7 @@ async def get_subjects(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=20, ge=1, le=100),  # FIXED: Added max limit
     db: Session = Depends(get_db),
-    current_user: dict = Depends(verify_clerk_token)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """Get all subjects. Visible to authenticated users."""
     return crud.get_subjects(db, skip=skip, limit=limit)
@@ -31,7 +31,7 @@ async def create_subject(
 async def get_subject(
     subject_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(verify_clerk_token)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """Get single subject."""
     subject = crud.get_subject(db, subject_id)

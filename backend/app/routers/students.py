@@ -19,7 +19,7 @@ async def get_students(
     limit: int = Query(default=20, ge=1, le=100, description="Max records to return"),
     department_id: int = Query(None, description="Filter by department"),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(verify_clerk_token)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """
     Get students based on role:
@@ -64,7 +64,7 @@ async def get_student(
     request: Request,
     student_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(verify_clerk_token)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """Get student by ID with role-based access control."""
     role = current_user.get("role")
@@ -95,7 +95,7 @@ async def update_student(
     student_id: int,
     student_update: schemas.StudentUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(verify_clerk_token)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """Update student. Admin can update all fields, students can only update phone/address."""
     role = current_user.get("role")

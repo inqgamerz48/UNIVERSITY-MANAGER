@@ -13,9 +13,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase (Singleton pattern)
-let app;
-let auth;
-let storage;
+let app: any;
+let auth: any;
+let storage: any;
 
 try {
     if (typeof window !== "undefined" || process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
