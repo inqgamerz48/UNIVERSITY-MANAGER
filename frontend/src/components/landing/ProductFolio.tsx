@@ -4,16 +4,17 @@ import { motion } from "framer-motion";
 
 export default function ProductFolio() {
     return (
-        <div className="relative w-full max-w-6xl mx-auto mt-32 perspective-1000 px-6">
+        <div className="relative w-full max-w-6xl mx-auto mt-24 px-6 opacity-0 animate-in fade-in zoom-in duration-1000 fill-mode-forwards">
             {/* Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] bg-[var(--accent-gold)] opacity-[0.03] blur-[150px] rounded-full pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-[var(--accent-gold)] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
 
             {/* The Folio Container */}
             <motion.div
-                initial={{ rotateX: 20, opacity: 0, scale: 0.9 }}
-                animate={{ rotateX: 0, opacity: 1, scale: 1 }}
-                transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
-                className="relative z-10 w-full aspect-[16/10] bg-[#0A0E12] rounded-3xl border border-[var(--border-medium)] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden group hover:scale-[1.01] transition-transform duration-700"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="relative z-10 w-full aspect-[16/10] bg-[#0A0E12] rounded-3xl border border-[var(--border-medium)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden group"
             >
                 {/* Leather Folio Texture Overlay */}
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/leather.png')] opacity-[0.15] pointer-events-none mix-blend-overlay" />
