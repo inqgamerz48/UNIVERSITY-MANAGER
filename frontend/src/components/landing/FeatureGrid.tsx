@@ -54,20 +54,20 @@ export default function FeatureGrid() {
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.1 }}
                         whileHover={{ y: -8 }}
-                        className="group cursor-default relative overflow-hidden bg-[var(--bg-secondary)]/50 backdrop-blur-sm border-[var(--border-subtle)] hover:border-[var(--accent-gold)]/30 transition-all duration-500 p-8 rounded-3xl"
+                        className="group cursor-default relative overflow-hidden bg-[var(--bg-secondary)]/20 border border-[var(--border-subtle)] hover:border-[var(--accent-gold)]/50 transition-all duration-300 p-8 rounded-2xl"
                     >
-                        {/* Hover Glow */}
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--accent-gold)] opacity-0 group-hover:opacity-[0.08] blur-[80px] transition-opacity duration-700 rounded-full translate-x-12 -translate-y-12" />
+                        {/* Hover Gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-gold)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                        <div className={`stat-icon ${feature.variant} mb-8 w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg`}>
-                            <feature.icon size={28} strokeWidth={1.5} />
+                        <div className={`stat-icon ${feature.variant} mb-6 w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--bg-secondary)] border border-[var(--border-subtle)] group-hover:border-[var(--accent-gold)]/30 transition-colors`}>
+                            <feature.icon size={24} strokeWidth={1.5} className="text-[var(--text-secondary)] group-hover:text-[var(--accent-gold)] transition-colors" />
                         </div>
 
-                        <h3 className="text-2xl font-bold font-display text-[var(--text-primary)] mb-4 group-hover:text-[var(--accent-gold)] transition-colors duration-300">
+                        <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3">
                             {feature.title}
                         </h3>
 
-                        <p className="text-[var(--text-secondary)] leading-relaxed text-base">
+                        <p className="text-[var(--text-secondary)] leading-relaxed text-sm">
                             {feature.description}
                         </p>
                     </motion.div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, LayoutDashboard, GraduationCap } from "lucide-react";
+import { ArrowRight, LayoutDashboard } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Hero() {
@@ -12,10 +12,9 @@ export default function Hero() {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="badge badge-gold mb-10 px-5 py-2 rounded-full border border-[var(--accent-gold)]/30 bg-[var(--accent-gold)]/10 shadow-[0_0_25px_rgba(212,168,83,0.15)] backdrop-blur-md"
+                className="mb-8 px-4 py-1.5 rounded-full border border-[var(--accent-gold)]/20 bg-[var(--accent-gold)]/5 backdrop-blur-sm"
             >
-                <GraduationCap size={16} className="mr-2.5" />
-                <span className="tracking-widest text-xs font-bold uppercase text-[var(--accent-gold)]">University Management System v1.0</span>
+                <span className="text-sm font-medium text-[var(--accent-gold)] tracking-wide">University Management Reimagined</span>
             </motion.div>
 
             {/* Heading */}
@@ -23,10 +22,10 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-6xl md:text-7xl lg:text-8xl font-display font-bold text-[var(--text-primary)] mb-10 tracking-tight leading-[1.05]"
+                className="text-6xl md:text-8xl font-bold text-[var(--text-primary)] mb-8 tracking-tight leading-none"
             >
-                Academic Excellence <br className="hidden md:block" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-br from-[var(--text-secondary)] via-[var(--text-muted)] to-[var(--text-secondary)] opacity-80">Meets Modern Craft</span>
+                The Gold Standard <br className="hidden md:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-br from-[var(--accent-gold)] via-[#F9E9C3] to-[var(--accent-gold)]">In Academic Operations</span>
             </motion.h1>
 
             {/* Subheading */}
@@ -36,8 +35,8 @@ export default function Hero() {
                 transition={{ delay: 0.2 }}
                 className="text-xl md:text-2xl text-[var(--text-secondary)] mb-12 max-w-3xl leading-relaxed text-balance font-light"
             >
-                Streamline university operations with a premium, role-based platform designed for
-                administrators, faculty, and students. Efficient, secure, and beautiful.
+                A unified, role-based operating system for modern universities.
+                Seamlessly connect faculty, students, and administrators.
             </motion.p>
 
             {/* Buttons */}
