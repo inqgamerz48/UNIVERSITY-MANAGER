@@ -44,8 +44,8 @@ const features = [
 
 export default function FeatureGrid() {
     return (
-        <div className="w-full max-w-6xl mx-auto mt-32 px-4 mb-20">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="w-full max-w-7xl mx-auto mt-40 px-6 mb-32">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {features.map((feature, i) => (
                     <motion.div
                         key={i}
@@ -53,21 +53,21 @@ export default function FeatureGrid() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: i * 0.1 }}
-                        whileHover={{ y: -5 }}
-                        className="card group cursor-default relative overflow-hidden"
+                        whileHover={{ y: -8 }}
+                        className="group cursor-default relative overflow-hidden bg-[var(--bg-secondary)]/50 backdrop-blur-sm border-[var(--border-subtle)] hover:border-[var(--accent-gold)]/30 transition-all duration-500 p-8 rounded-3xl"
                     >
                         {/* Hover Glow */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-gold)] opacity-0 group-hover:opacity-[0.05] blur-[50px] transition-opacity duration-500 rounded-full translate-x-10 -translate-y-10" />
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--accent-gold)] opacity-0 group-hover:opacity-[0.08] blur-[80px] transition-opacity duration-700 rounded-full translate-x-12 -translate-y-12" />
 
-                        <div className={`stat-icon ${feature.variant} mb-6 w-14 h-14 rounded-2xl flex items-center justify-center`}>
-                            <feature.icon size={26} strokeWidth={1.5} />
+                        <div className={`stat-icon ${feature.variant} mb-8 w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg`}>
+                            <feature.icon size={28} strokeWidth={1.5} />
                         </div>
 
-                        <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3 group-hover:text-[var(--accent-gold)] transition-colors">
+                        <h3 className="text-2xl font-bold font-display text-[var(--text-primary)] mb-4 group-hover:text-[var(--accent-gold)] transition-colors duration-300">
                             {feature.title}
                         </h3>
 
-                        <p className="text-[var(--text-secondary)] leading-relaxed">
+                        <p className="text-[var(--text-secondary)] leading-relaxed text-base">
                             {feature.description}
                         </p>
                     </motion.div>
