@@ -1,47 +1,51 @@
 # Firebase Production Configuration & Deployment Guide
 
-## 1. Production Hosting (Vercel / Netlify / Railway)
+## 1. Frontend: Vercel Environment Variables (Action Required)
 
-Since you have hosted this application, you **MUST** configure the environment variables in your hosting provider's dashboard. **Do not commit `.env` files.**
+Go to your Vercel Project Settings > Environment Variables.
+**Delete** the old `CLERK_` variables.
+**Add** these exact values (from your provided config):
 
-### Frontend (Next.js on Vercel/Netlify)
-Go to **Settings > Environment Variables** in your dashboard and add the following keys from your Firebase Console:
-
-| Variable Name | Value Source (Firebase Console) |
-|---------------|---------------------------------|
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | Project Settings > General > Web App Config |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Project Settings > General > Web App Config |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Project Settings > General > Web App Config |
-| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Project Settings > General > Web App Config |
-| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Project Settings > General > Web App Config |
-| `NEXT_PUBLIC_FIREBASE_APP_ID` | Project Settings > General > Web App Config |
-
-### Backend (FastAPI on Railway/Render/AWS)
-Your backend needs admin privileges.
-
-1.  **Generate Key:** Go to Firebase Console > Project Settings > Service Accounts > **Generate new private key**.
-2.  **Copy Content:** Open the downloaded JSON file and copy the entire content.
-3.  **Set Variable:** In your hosting dashboard (e.g., Railway Variables), create a new variable:
-
-    *   **Key:** `FIREBASE_CREDENTIALS_JSON`
-    *   **Value:** *(Paste the entire JSON content here)*
-
-    *   **Key:** `DATABASE_URL`
-    *   **Value:** `postgresql://...` (Your Neon connection string)
+| Variable Name | Value |
+|---------------|-------|
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | `AIzaSyCXR7cBfUxRTootY6AcGhsNiR9hLzD_75k` |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | `uni-manager-bb9ab.firebaseapp.com` |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | `uni-manager-bb9ab` |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | `uni-manager-bb9ab.firebasestorage.app` |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | `769830083528` |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | `1:769830083528:web:cd39e9ae7bc21aaafffefd` |
+| `NEXT_PUBLIC_API_URL` | `https://university-manager-64p3.onrender.com` (Your Render Backend URL) |
 
 ---
 
-## 2. Cleanup Verification (Post-Deployment)
+## 2. Backend: Render Environment Variables (Action Required)
 
-Ensure these steps were taken to successfully remove the old auth provider:
+Go to your Render Dashboard > Environment.
+**Delete** these old variables:
+*   `CLERK_PEM_PUBLIC_KEY`
+*   `CLERK_SECRET_KEY`
 
-*   [x] `@clerk/nextjs` uninstall confirmed.
-*   [x] `CLERK_` keys removed from all environment configurations.
-*   [x] `npm build` passes without Clerk import errors.
+**Add** this new variable:
 
-## 3. Database Sync Strategy (Production)
-In production, when a user signs up via Firebase:
-1.  The **Frontend** receives the `User` object immediately.
-2.  **Recommended:** Trigger a backend endpoint (e.g., `/api/users/sync`) passing the Firebase Token.
-3.  **Backend:** Verifies token via Admin SDK -> Extracts `uid` -> Checks if exists in Postgres -> Creates User record if missing.
-    *   *This ensures your Relational Data (Students/Faculty) stays linked to the Auth Identity.*
+| Variable Name | Value |
+|---------------|-------|
+| `FIREBASE_CREDENTIALS_JSON` | **[REQUIRES ACTION]** You must generate this from Firebase Console > Project Settings > Service Accounts. It is a long JSON string starting with `{"type": "service_account", ...}`. |
+
+**Keep** these existing variables:
+*   `DATABASE_URL` (Keep your Neon URL)
+*   `CORS_ORIGINS` (Update to include your Vercel domain options if needed, e.g. `["https://your-vercel-app.vercel.app", "http://localhost:3000"]`)
+
+---
+
+## 3. Troubleshooting Deployment
+
+### Render "No open ports detected" Error
+If your Render deployment fails with this error, verify your "Start Command" in Render Settings > Settings:
+
+*   **Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+*   *(Ensure it binds to 0.0.0.0, not localhost)*
+
+### Vercel "Build Process" Error
+If Vercel fails on `npm run build`:
+*   Ensure you have removed `clerk` from `package.json` (We did this).
+*   Ensure you have no duplicate routes (e.g. `sign-in/page.tsx` AND `sign-in/[[...sign-in]]`). (We fixed this).

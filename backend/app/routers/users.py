@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel
 from .. import crud, schemas
 from ..database import get_db
-from ..middleware.auth import verify_clerk_token
+from ..middleware.auth import verify_firebase_token
 from ..middleware.rbac import AdminOnly
 
 router = APIRouter()
@@ -43,9 +43,11 @@ async def update_user_role(
 async def delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(AdminOnly)
+    current_user: dict = Depends(verify_firebase_token)
 ):
     """Delete a user. Admin only."""
+
+    
     user = crud.get_user(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

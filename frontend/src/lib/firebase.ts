@@ -13,7 +13,21 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase (Singleton pattern)
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+let app;
+let auth;
+let storage;
 
-export const auth = getAuth(app);
-export const storage = getStorage(app);
+try {
+    if (typeof window !== "undefined" || process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+        auth = getAuth(app);
+        storage = getStorage(app);
+    } else {
+        console.warn("Firebase ENV keys missing. Skipping initialization.");
+    }
+} catch (error) {
+    console.error("Firebase initialization failed:", error);
+}
+
+export { auth, storage };
+export default app;

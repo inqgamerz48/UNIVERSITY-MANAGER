@@ -1,7 +1,8 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/context/AuthContext";
 import { Lock, Mail, Bell, Shield, Users, GraduationCap } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const roleConfig: Record<string, { badge: string; icon: typeof Shield }> = {
     admin: { badge: "badge-rust", icon: Shield },
@@ -10,10 +11,24 @@ const roleConfig: Record<string, { badge: string; icon: typeof Shield }> = {
 };
 
 export default function ProfilePage() {
-    const { user } = useUser();
-    const role = (user?.publicMetadata?.role as string) || "student";
+    const { user } = useAuth();
+    const [role, setRole] = useState("student");
+
+    useEffect(() => {
+        if (user) {
+            user.getIdTokenResult().then((result) => {
+                setRole((result.claims.role as string) || "student");
+            });
+        }
+    }, [user]);
+
     const config = roleConfig[role] || roleConfig.student;
     const RoleIcon = config.icon;
+
+    // Helper to extract names
+    const displayName = user?.displayName || "User";
+    const [firstName, ...lastNameParts] = displayName.split(" ");
+    const lastName = lastNameParts.join(" ");
 
     return (
         <div className="max-w-3xl mx-auto space-y-8">
@@ -27,11 +42,11 @@ export default function ProfilePage() {
             <div className="card animate-fade-up">
                 <div className="flex items-center gap-6 mb-10">
                     <div className="w-24 h-24 rounded-full bg-[var(--accent-gold)] flex items-center justify-center text-[var(--bg-primary)] font-display font-bold text-3xl">
-                        {user?.firstName?.[0]}{user?.lastName?.[0]}
+                        {firstName?.[0]}{lastName?.[0] || displayName?.[0]}
                     </div>
                     <div>
-                        <h2 className="font-display text-2xl font-semibold">{user?.fullName || "User"}</h2>
-                        <p className="text-[var(--text-secondary)]">{user?.primaryEmailAddress?.emailAddress}</p>
+                        <h2 className="font-display text-2xl font-semibold">{displayName}</h2>
+                        <p className="text-[var(--text-secondary)]">{user?.email}</p>
                         <span className={`badge ${config.badge} mt-2 inline-flex items-center gap-1.5`}>
                             <RoleIcon size={12} />
                             {role}
@@ -42,19 +57,19 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="p-4 rounded-xl bg-[var(--bg-tertiary)]">
                         <div className="text-[var(--text-muted)] text-sm mb-1">First Name</div>
-                        <div className="font-medium">{user?.firstName || "-"}</div>
+                        <div className="font-medium">{firstName || "-"}</div>
                     </div>
                     <div className="p-4 rounded-xl bg-[var(--bg-tertiary)]">
                         <div className="text-[var(--text-muted)] text-sm mb-1">Last Name</div>
-                        <div className="font-medium">{user?.lastName || "-"}</div>
+                        <div className="font-medium">{lastName || "-"}</div>
                     </div>
                     <div className="p-4 rounded-xl bg-[var(--bg-tertiary)]">
                         <div className="text-[var(--text-muted)] text-sm mb-1">Email</div>
-                        <div className="font-medium">{user?.primaryEmailAddress?.emailAddress || "-"}</div>
+                        <div className="font-medium">{user?.email || "-"}</div>
                     </div>
                     <div className="p-4 rounded-xl bg-[var(--bg-tertiary)]">
                         <div className="text-[var(--text-muted)] text-sm mb-1">Last Sign In</div>
-                        <div className="font-medium">{user?.lastSignInAt?.toLocaleDateString() || "-"}</div>
+                        <div className="font-medium">{user?.metadata?.lastSignInTime ? new Date(user.metadata.lastSignInTime).toLocaleDateString() : "-"}</div>
                     </div>
                 </div>
             </div>
