@@ -1,13 +1,13 @@
-from fastapi import Header, HTTPException, Depends
-from jose import jwt, JWTError
-import httpx
-import os
-from ..config import settings
 
-async def verify_clerk_token(authorization: str = Header(None)) -> dict:
+from firebase_admin import auth
+from app.core.firebase import initialize_firebase
+
+# Ensure Firebase is initialized
+initialize_firebase()
+
+async def verify_firebase_token(authorization: str = Header(None)) -> dict:
     """
-    Verify Clerk JWT token and extract user information including role.
-    Security: RS256 verification with optional audience check.
+    Verify Firebase ID Token and extract user information.
     """
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization required")
@@ -20,44 +20,30 @@ async def verify_clerk_token(authorization: str = Header(None)) -> dict:
         
         token = parts[1]
         
-        # Build decode options
-        decode_options = {}
-        decode_kwargs = {
-            "algorithms": ["RS256"],
-        }
-        
-        # Verify audience if configured
-        if settings.CLERK_AUDIENCE:
-            decode_kwargs["audience"] = settings.CLERK_AUDIENCE
-        else:
-            decode_options["verify_aud"] = False
-        
-        # Decode JWT with RS256 verification
-        payload = jwt.decode(
-            token,
-            settings.CLERK_PEM_PUBLIC_KEY,
-            options=decode_options,
-            **decode_kwargs
-        )
+        # Verify ID token
+        decoded_token = auth.verify_id_token(token)
         
         # Extract user info
-        user_id = payload.get("sub")
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
+        user_id = decoded_token.get("uid")
+        email = decoded_token.get("email")
         
-        # Extract role from public_metadata (default to student)
-        metadata = payload.get("public_metadata", {})
-        role = metadata.get("role", "student")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token: No UID found")
+            
+        # Extract role from Custom Claims
+        # Default to 'student' if no role claim set
+        role = decoded_token.get("role", "student")
         
         return {
             "user_id": user_id,
-            "clerk_id": user_id,
+            "firebase_uid": user_id,
             "role": role,
-            "email": payload.get("email")
+            "email": email
         }
         
-    except JWTError:
-        # Generic error message to prevent information leakage
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-    except Exception:
+    except ValueError as e:
+        # Token invalid, expired, or malformed
+        raise HTTPException(status_code=401, detail=f"Invalid Authorization Token: {str(e)}")
+    except Exception as e:
         raise HTTPException(status_code=401, detail="Authentication failed")
+

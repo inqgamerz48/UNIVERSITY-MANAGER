@@ -1,21 +1,33 @@
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
 
 export type UserRole = "admin" | "faculty" | "student";
 
 export function useUserRole() {
-    const { user, isLoaded, isSignedIn } = useUser();
+    const { user, loading } = useAuth();
+    const [role, setRole] = useState<UserRole>("student");
+    const [roleLoading, setRoleLoading] = useState(true);
 
-    // Default to 'student' if no role is found OR if user is not loaded yet
-    // This is defensive coding to prevent unauthorized access during loading
-    const role = (user?.publicMetadata?.role as UserRole) || "student";
-
-    // Explicit check for loading state if strict check is needed elsewhere
-    const isLoading = !isLoaded;
+    useEffect(() => {
+        if (!loading && user) {
+            // In Firebase, roles are in ID Token Result (Custom Claims)
+            // We need to fetch it async
+            user.getIdTokenResult().then((idTokenResult) => {
+                const userRole = (idTokenResult.claims.role as UserRole) || "student";
+                setRole(userRole);
+                setRoleLoading(false);
+            }).catch(() => {
+                setRoleLoading(false);
+            });
+        } else if (!loading && !user) {
+            setRoleLoading(false);
+        }
+    }, [user, loading]);
 
     return {
         role,
-        isLoading,
-        isSignedIn,
+        isLoading: loading || roleLoading,
+        isSignedIn: !!user,
         user,
         isAdmin: role === "admin",
         isFaculty: role === "faculty",

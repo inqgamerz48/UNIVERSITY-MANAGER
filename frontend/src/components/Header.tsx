@@ -1,13 +1,13 @@
 "use client";
 
 import { Search, Bell } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
-    const { user } = useUser();
+    const { user } = useAuth();
 
-    const firstName = user?.firstName || "User";
-    const initials = user?.firstName?.[0] || "U";
+    const firstName = user?.displayName?.split(" ")[0] || "User";
+    const initials = user?.displayName ? user.displayName.split(" ").map((n) => n[0]).join("").substring(0, 2) : "U";
 
     return (
         <header className="flex-between mb-8">
@@ -42,7 +42,7 @@ export default function Header() {
                         {initials}
                     </div>
                     <div className="hidden md:block">
-                        <p className="text-sm font-medium">{user?.fullName || "User"}</p>
+                        <p className="text-sm font-medium">{user?.displayName || "User"}</p>
                         <p className="text-xs text-[var(--text-muted)]">Administrator</p>
                     </div>
                 </div>
