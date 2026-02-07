@@ -33,7 +33,7 @@ async def get_faculty(
     db: Session = Depends(get_db),
     current_user: dict = Depends(verify_firebase_token)
 ):
-    """Get single faculty member."""
+    """
     faculty = crud.get_faculty(db, faculty_id)
     if not faculty:
         raise HTTPException(status_code=404, detail="Faculty not found")

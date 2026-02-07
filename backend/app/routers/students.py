@@ -28,9 +28,9 @@ async def get_students(
     - Student: Only themselves
     """
     role = current_user.get("role")
-    clerk_id = current_user.get("user_id")
+    firebase_uid = current_user.get("user_id")
     
-    db_user = crud.get_user_by_clerk_id(db, clerk_id)
+    db_user = crud.get_user_by_firebase_uid(db, firebase_uid)
     if not db_user:
         raise HTTPException(status_code=401, detail="User not found in system")
         
@@ -68,7 +68,7 @@ async def get_student(
 ):
     """Get student by ID with role-based access control."""
     role = current_user.get("role")
-    clerk_id = current_user.get("user_id")
+    firebase_uid = current_user.get("user_id")
     
     student = crud.get_student(db, student_id)
     if not student:
@@ -77,13 +77,13 @@ async def get_student(
     if role == "admin":
         return student
     elif role == "faculty":
-        db_user = crud.get_user_by_clerk_id(db, clerk_id)
+        db_user = crud.get_user_by_firebase_uid(db, firebase_uid)
         faculty = crud.get_faculty_by_user_id(db, db_user.id)
         if faculty and faculty.department_id == student.department_id:
             return student
         raise HTTPException(status_code=403, detail="Access denied to this student")
     else:
-        db_user = crud.get_user_by_clerk_id(db, clerk_id)
+        db_user = crud.get_user_by_firebase_uid(db, firebase_uid)
         if student.user_id == db_user.id:
             return student
         raise HTTPException(status_code=403, detail="Access denied")
@@ -99,7 +99,7 @@ async def update_student(
 ):
     """Update student. Admin can update all fields, students can only update phone/address."""
     role = current_user.get("role")
-    clerk_id = current_user.get("user_id")
+    firebase_uid = current_user.get("user_id")
     
     existing = crud.get_student(db, student_id)
     if not existing:
@@ -109,7 +109,7 @@ async def update_student(
         return crud.update_student(db, student_id, student_update)
     
     # Students can only update their own profile
-    db_user = crud.get_user_by_clerk_id(db, clerk_id)
+    db_user = crud.get_user_by_firebase_uid(db, firebase_uid)
     if existing.user_id != db_user.id:
         raise HTTPException(status_code=403, detail="Can only update your own profile")
     
