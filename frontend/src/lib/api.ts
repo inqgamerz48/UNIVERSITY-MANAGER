@@ -11,8 +11,16 @@ const api = axios.create({
 
 // Add auth token interceptor
 api.interceptors.request.use(async (config) => {
-    // Token will be added via Clerk's useAuth hook in components
-    // This is a placeholder for when we implement proper token injection
+    try {
+        const { auth } = await import("@/lib/firebase");
+        const user = auth.currentUser;
+        if (user) {
+            const token = await user.getIdToken();
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    } catch (error) {
+        console.error("Error attaching auth token:", error);
+    }
     return config;
 });
 
