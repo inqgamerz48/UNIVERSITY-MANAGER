@@ -43,12 +43,35 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS Setup - Restricted methods and headers
+# CORS Setup - Restricted methods and headers
+# origins = settings.CORS_ORIGINS
+# if settings.CORS_ORIGINS == ["*"]:
+#     origins = [
+#         "http://localhost:3000",
+#         "http://localhost:5173",
+#         "https://university-manager-git-main-inqgamerz48s-projects.vercel.app",
+#         "https://university-manager-nu.vercel.app",
+#         "https://university-manager.vercel.app",
+#     ]
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "https://university-manager-git-main-inqgamerz48s-projects.vercel.app",
+    "https://university-manager-nu.vercel.app",
+    "https://university-manager-64p3.onrender.com",
+]
+
+# Extend with any environment-configured origins if they aren't safe defaults
+if isinstance(settings.CORS_ORIGINS, list) and settings.CORS_ORIGINS != ["*"]:
+     origins.extend(settings.CORS_ORIGINS)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 @app.exception_handler(Exception)
@@ -58,7 +81,10 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"message": "Internal Server Error", "detail": str(exc)},
         headers={
-            "Access-Control-Allow-Origin": "*",
+            # mirror the origin if it's in our allowed list, otherwise don't send CORS headers for errors
+            # This is a bit manual, but safer than *
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"), 
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Allow-Methods": "*",
             "Access-Control-Allow-Headers": "*",
         },
