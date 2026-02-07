@@ -1,11 +1,7 @@
 import os
 from pydantic_settings import BaseSettings
 
-class Settings(BaseSettings):
-    DATABASE_URL: str
-    CLERK_SECRET_KEY: str
-    CLERK_PEM_PUBLIC_KEY: str
-    CLERK_AUDIENCE: str = ""  # Optional: Clerk frontend API for JWT audience verification
+
 from typing import Any, List, Union
 from pydantic import field_validator
 import json
