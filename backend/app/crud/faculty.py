@@ -25,11 +25,13 @@ def get_all_faculty(db: Session, skip: int = 0, limit: int = 100):
         .options(joinedload(models.Faculty.department))\
         .offset(skip).limit(limit).all()
 
+from .user import create_user
+
 def create_faculty(db: Session, faculty: schemas.FacultyCreate):
     """Create faculty with proper Clerk integration."""
     try:
-    # Create User entry first
-        db_user = crud_user.create_user(
+        # Create User entry first
+        db_user = create_user(
             db, 
             user=schemas.UserCreate(
                 email=faculty.email,
@@ -39,11 +41,6 @@ def create_faculty(db: Session, faculty: schemas.FacultyCreate):
                 role="faculty"
             )
         )
-        # The crud_user.create_user function should handle adding and flushing the user.
-        # These lines are likely redundant if create_user already handles it,
-        # but are kept as per the provided instruction snippet.
-        db.add(db_user)
-        db.flush()
         
         db_faculty = models.Faculty(
             user_id=db_user.id,

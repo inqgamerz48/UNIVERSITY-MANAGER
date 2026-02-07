@@ -27,19 +27,27 @@ def get_students(db: Session, skip: int = 0, limit: int = 100, department_id: in
         query = query.filter(models.Student.department_id == department_id)
     return query.offset(skip).limit(limit).all()
 
+from .user import create_user
+
 def create_student(db: Session, student: schemas.StudentCreate):
-    # Create User entry first
-    # The original try-except block is removed as per the provided code edit,
-    # assuming crud_user.create_user handles its own exceptions or the caller will.
-    db_user = crud_user.create_user(
-        db, 
-        user=schemas.UserCreate(
-            email=student.email,
-            firebase_uid=student.firebase_uid, # Changed from clerk_id to firebase_uid
-            first_name=student.first_name,
-            last_name=student.last_name,
-            role="student"
+    """Create a new student with associated user record."""
+    try:
+        # Create User entry first
+        db_user = create_user(
+            db, 
+            user=schemas.UserCreate(
+                email=student.email,
+                firebase_uid=student.firebase_uid,
+                first_name=student.first_name,
+                last_name=student.last_name,
+                role="student"
+            )
         )
+        
+        db_student = models.Student(
+            user_id=db_user.id,
+            roll_number=student.roll_number,
+            department_id=student.department_id,
             year=student.year,
             semester=student.semester,
             phone=student.phone,
