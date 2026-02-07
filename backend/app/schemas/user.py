@@ -9,7 +9,7 @@ class UserBase(BaseModel):
     role: str = "student"
 
 class UserCreate(UserBase):
-    clerk_id: str
+    firebase_uid: str
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
@@ -18,7 +18,7 @@ class UserUpdate(BaseModel):
 
 class User(UserBase):
     id: int
-    clerk_id: str
+    firebase_uid: str
     created_at: datetime
     updated_at: datetime
 

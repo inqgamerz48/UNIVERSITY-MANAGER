@@ -106,3 +106,22 @@ app.include_router(departments_router, prefix="/api/departments", tags=["departm
 app.include_router(subjects_router, prefix="/api/subjects", tags=["subjects"])
 app.include_router(users_router, prefix="/api/users", tags=["users"])
 app.include_router(stats_router, prefix="/api/stats", tags=["stats"])
+
+@app.get("/api/migrate-clerk-firebase")
+def run_migration():
+    from sqlalchemy import text
+    try:
+        with engine.connect() as conn:
+            with conn.begin():
+                conn.execute(text("ALTER TABLE users RENAME COLUMN clerk_id TO firebase_uid;"))
+                try:
+                    conn.execute(text("ALTER INDEX ix_users_clerk_id RENAME TO ix_users_firebase_uid;"))
+                except:
+                    pass
+                try:
+                    conn.execute(text("ALTER TABLE users RENAME CONSTRAINT users_clerk_id_key TO users_firebase_uid_key;"))
+                except:
+                    pass
+        return {"message": "Migration successful"}
+    except Exception as e:
+        return {"error": str(e)}

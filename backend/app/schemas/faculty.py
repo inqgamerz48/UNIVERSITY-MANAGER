@@ -14,7 +14,7 @@ class FacultyBase(BaseModel):
 
 class FacultyCreate(FacultyBase):
     """Schema for creating faculty. Requires clerk_id for proper Clerk integration."""
-    clerk_id: str  # FIXED: Now required for proper auth sync
+    firebase_uid: str  # FIXED: Now required for proper auth sync
     first_name: str
     last_name: str
     email: EmailStr

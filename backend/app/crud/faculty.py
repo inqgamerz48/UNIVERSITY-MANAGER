@@ -28,13 +28,20 @@ def get_all_faculty(db: Session, skip: int = 0, limit: int = 100):
 def create_faculty(db: Session, faculty: schemas.FacultyCreate):
     """Create faculty with proper Clerk integration."""
     try:
-        db_user = models.User(
-            email=faculty.email,
-            clerk_id=faculty.clerk_id,  # FIXED: Use provided clerk_id
-            first_name=faculty.first_name,
-            last_name=faculty.last_name,
-            role="faculty"
+    # Create User entry first
+        db_user = crud_user.create_user(
+            db, 
+            user=schemas.UserCreate(
+                email=faculty.email,
+                firebase_uid=faculty.firebase_uid,
+                first_name=faculty.first_name,
+                last_name=faculty.last_name,
+                role="faculty"
+            )
         )
+        # The crud_user.create_user function should handle adding and flushing the user.
+        # These lines are likely redundant if create_user already handles it,
+        # but are kept as per the provided instruction snippet.
         db.add(db_user)
         db.flush()
         
@@ -59,6 +66,6 @@ def create_faculty(db: Session, faculty: schemas.FacultyCreate):
             raise HTTPException(status_code=409, detail="Email already exists")
         elif "employee_id" in error_str:
             raise HTTPException(status_code=409, detail="Employee ID already exists")
-        elif "clerk_id" in error_str:
+        elif "firebase_uid" in error_str:
             raise HTTPException(status_code=409, detail="User already registered")
         raise HTTPException(status_code=409, detail="Duplicate entry detected")

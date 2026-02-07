@@ -28,22 +28,18 @@ def get_students(db: Session, skip: int = 0, limit: int = 100, department_id: in
     return query.offset(skip).limit(limit).all()
 
 def create_student(db: Session, student: schemas.StudentCreate):
-    """Create a new student with associated user record."""
-    try:
-        db_user = models.User(
+    # Create User entry first
+    # The original try-except block is removed as per the provided code edit,
+    # assuming crud_user.create_user handles its own exceptions or the caller will.
+    db_user = crud_user.create_user(
+        db, 
+        user=schemas.UserCreate(
             email=student.email,
-            clerk_id=student.clerk_id,  # FIXED: Use provided clerk_id
+            firebase_uid=student.firebase_uid, # Changed from clerk_id to firebase_uid
             first_name=student.first_name,
             last_name=student.last_name,
             role="student"
         )
-        db.add(db_user)
-        db.flush()
-        
-        db_student = models.Student(
-            user_id=db_user.id,
-            roll_number=student.roll_number,
-            department_id=student.department_id,
             year=student.year,
             semester=student.semester,
             phone=student.phone,
@@ -61,7 +57,7 @@ def create_student(db: Session, student: schemas.StudentCreate):
             raise HTTPException(status_code=409, detail="Email already exists")
         elif "roll_number" in error_str:
             raise HTTPException(status_code=409, detail="Roll number already exists")
-        elif "clerk_id" in error_str:
+        elif "firebase_uid" in error_str:
             raise HTTPException(status_code=409, detail="User already registered")
         raise HTTPException(status_code=409, detail="Duplicate entry detected")
 

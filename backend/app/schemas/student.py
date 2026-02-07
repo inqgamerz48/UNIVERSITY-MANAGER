@@ -15,7 +15,7 @@ class StudentBase(BaseModel):
 
 class StudentCreate(StudentBase):
     """Schema for creating a student. Requires clerk_id for proper Clerk integration."""
-    clerk_id: str  # FIXED: Now required for proper auth sync
+    firebase_uid: str  # FIXED: Now required for proper auth sync
     first_name: str
     last_name: str
     email: EmailStr

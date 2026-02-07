@@ -40,7 +40,7 @@ async def update_user_role(
     # Update functionality: Sync with Firebase Custom Claims
     try:
         from firebase_admin import auth
-        auth.set_custom_user_claims(user.clerk_id, {'role': role_update.role})
+        auth.set_custom_user_claims(user.firebase_uid, {'role': role_update.role})
     except Exception as e:
         # Log error but proceed with DB update (or fail? Decision: Fail to ensure consistency)
         raise HTTPException(status_code=500, detail=f"Failed to sync role to Firebase: {str(e)}")
