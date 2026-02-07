@@ -37,6 +37,14 @@ async def update_user_role(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    # Update functionality: Sync with Firebase Custom Claims
+    try:
+        from firebase_admin import auth
+        auth.set_custom_user_claims(user.clerk_id, {'role': role_update.role})
+    except Exception as e:
+        # Log error but proceed with DB update (or fail? Decision: Fail to ensure consistency)
+        raise HTTPException(status_code=500, detail=f"Failed to sync role to Firebase: {str(e)}")
+
     return crud.update_user_role(db, user_id, role_update.role)
 
 @router.delete("/{user_id}")

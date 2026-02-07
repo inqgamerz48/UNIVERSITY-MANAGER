@@ -1,5 +1,8 @@
+"use client";
+
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import AuthGuard from "@/components/AuthGuard";
 
 export default function DashboardLayout({
     children,
@@ -7,14 +10,17 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="min-h-screen">
-            <Sidebar />
-            <main className="main-content">
-                <Header />
-                <div className="animate-fade-up">
-                    {children}
-                </div>
-            </main>
-        </div>
+        <AuthGuard>
+            <div className="min-h-screen">
+                <Sidebar />
+                <main className="main-content">
+                    <Header />
+                    <div className="animate-fade-up">
+                        {children}
+                    </div>
+                </main>
+            </div>
+        </AuthGuard>
     );
 }
+
