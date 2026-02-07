@@ -37,7 +37,7 @@ export default function AddStudentPage() {
                 department_id: parseInt(formData.department_id),
                 year: parseInt(formData.year),
                 semester: parseInt(formData.semester),
-                clerk_id: "temp_clerk_id", // Will be replaced with real Clerk ID
+                firebase_uid: crypto.randomUUID(), // Generate a unique ID for the user
             };
 
             await studentsApi.create(payload);

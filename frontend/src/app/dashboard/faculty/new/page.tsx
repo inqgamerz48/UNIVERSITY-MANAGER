@@ -33,7 +33,7 @@ export default function AddFacultyPage() {
             const payload = {
                 ...formData,
                 department_id: parseInt(formData.department_id),
-                clerk_id: "temp_clerk_id",
+                firebase_uid: crypto.randomUUID(), // Generate a unique ID for the user
             };
 
             await facultyApi.create(payload);

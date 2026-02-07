@@ -64,7 +64,7 @@ export const usersApi = {
 
 // Types
 interface CreateStudentData {
-    clerk_id: string;
+    firebase_uid: string;
     email: string;
     first_name: string;
     last_name: string;
@@ -77,7 +77,7 @@ interface CreateStudentData {
 }
 
 interface CreateFacultyData {
-    clerk_id: string;
+    firebase_uid: string;
     email: string;
     first_name: string;
     last_name: string;
