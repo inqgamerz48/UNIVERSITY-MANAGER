@@ -1,8 +1,7 @@
-
 "use client";
 
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -25,6 +24,21 @@ export default function SignInPage() {
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Failed to sign in.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+            toast.success("Signed in with Google!");
+            router.push("/dashboard");
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || "Failed to sign in with Google.");
         } finally {
             setLoading(false);
         }
@@ -66,13 +80,34 @@ export default function SignInPage() {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="space-y-3">
                         <button
                             type="submit"
                             disabled={loading}
                             className="group relative flex w-full justify-center rounded-md bg-[var(--action-primary)] py-2 px-3 text-sm font-semibold text-white hover:bg-[var(--action-primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
                         >
                             {loading ? "Signing in..." : "Sign in"}
+                        </button>
+
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-[var(--border-subtle)]" />
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="bg-[var(--bg-secondary)] px-2 text-[var(--text-secondary)]">Or continue with</span>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            disabled={loading}
+                            className="group relative flex w-full justify-center rounded-md bg-white py-2 px-3 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+                        >
+                            <svg className="h-5 w-5 mr-2" aria-hidden="true" viewBox="0 0 24 24">
+                                <path d="M12.0003 20.45c4.656 0 8.16-3.235 8.16-7.986 0-.745-.092-1.396-.214-1.925h-7.946v3.42h4.636c-.183 1.135-.85 2.502-2.31 3.498v2.33h3.766c2.204-2.03 3.473-5.018 3.473-8.558 0-.909-.138-1.764-.318-2.585H12.0003v4.905h4.636c-1.05 3.018-3.953 5.345-7.636 5.345-4.57 0-8.28-3.71-8.28-8.28s3.71-8.28 8.28-8.28c2.096 0 3.992.705 5.502 2.15l3.52-3.52C15.86.828 13.985-.05 12.0003-.05 5.372-.05 0 5.322 0 11.95s5.372 12 12.0003 12z" fill="currentColor" />
+                            </svg>
+                            Sign in with Google
                         </button>
                     </div>
 
