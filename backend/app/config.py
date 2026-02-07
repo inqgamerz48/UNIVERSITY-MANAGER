@@ -13,7 +13,7 @@ import json
 class Settings(BaseSettings):
     DATABASE_URL: str
     FIREBASE_CREDENTIALS_JSON: str = "" # JSON string of credentials
-    CORS_ORIGINS: Union[List[str], str] = ["http://localhost:3000"]
+    CORS_ORIGINS: Union[List[str], str] = ["*"]
     RATE_LIMIT: str = "100/minute"  # Default rate limit
     
     @field_validator("CORS_ORIGINS", mode="before")
