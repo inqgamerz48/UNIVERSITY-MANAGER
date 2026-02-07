@@ -27,39 +27,39 @@ api.interceptors.request.use(async (config) => {
 // API Functions
 export const studentsApi = {
     getAll: (params?: { skip?: number; limit?: number; department_id?: number }) =>
-        api.get("/students", { params }),
-    getById: (id: number) => api.get(`/students/${id}`),
-    create: (data: CreateStudentData) => api.post("/students", data),
-    update: (id: number, data: Partial<CreateStudentData>) => api.put(`/students/${id}`, data),
-    delete: (id: number) => api.delete(`/students/${id}`),
+        api.get("/students/", { params }),
+    getById: (id: number) => api.get(`/students/${id}/`),
+    create: (data: CreateStudentData) => api.post("/students/", data),
+    update: (id: number, data: Partial<CreateStudentData>) => api.put(`/students/${id}/`, data),
+    delete: (id: number) => api.delete(`/students/${id}/`),
 };
 
 export const facultyApi = {
     getAll: (params?: { skip?: number; limit?: number }) =>
-        api.get("/faculty", { params }),
-    getById: (id: number) => api.get(`/faculty/${id}`),
-    create: (data: CreateFacultyData) => api.post("/faculty", data),
+        api.get("/faculty/", { params }),
+    getById: (id: number) => api.get(`/faculty/${id}/`),
+    create: (data: CreateFacultyData) => api.post("/faculty/", data),
 };
 
 export const departmentsApi = {
     getAll: (params?: { skip?: number; limit?: number }) =>
-        api.get("/departments", { params }),
-    getById: (id: number) => api.get(`/departments/${id}`),
-    create: (data: CreateDepartmentData) => api.post("/departments", data),
+        api.get("/departments/", { params }),
+    getById: (id: number) => api.get(`/departments/${id}/`),
+    create: (data: CreateDepartmentData) => api.post("/departments/", data),
 };
 
 export const subjectsApi = {
     getAll: (params?: { skip?: number; limit?: number }) =>
-        api.get("/subjects", { params }),
-    getById: (id: number) => api.get(`/subjects/${id}`),
-    create: (data: CreateSubjectData) => api.post("/subjects", data),
+        api.get("/subjects/", { params }),
+    getById: (id: number) => api.get(`/subjects/${id}/`),
+    create: (data: CreateSubjectData) => api.post("/subjects/", data),
 };
 
 export const usersApi = {
     getAll: (params?: { skip?: number; limit?: number }) =>
-        api.get("/users", { params }),
-    updateRole: (id: number, role: string) => api.put(`/users/${id}/role`, { role }),
-    delete: (id: number) => api.delete(`/users/${id}`),
+        api.get("/users/", { params }),
+    updateRole: (id: number, role: string) => api.put(`/users/${id}/role/`, { role }),
+    delete: (id: number) => api.delete(`/users/${id}/`),
 };
 
 // Types
