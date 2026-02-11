@@ -6,7 +6,13 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
+    .refine((email) => email.endsWith("@gmail.com"), {
+      message: "Only @gmail.com email addresses are allowed",
+    }),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -14,8 +20,13 @@ export const registerSchema = z.object({
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[0-9]/, "Password must contain at least one number"),
   confirmPassword: z.string(),
-  fullName: z.string().min(2, "Name must be at least 2 characters"),
-  role: z.enum(["STUDENT", "FACULTY", "ADMIN"]),
+  pinNumber: z
+    .string()
+    .min(1, "PIN number is required")
+    .regex(
+      /^\d{2}\d{3}-[A-Za-z]{2}-\d{3}$/,
+      "Invalid PIN format. Use: YY622-DEPT-PIN (e.g., 23622-CM-001)"
+    ),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -45,8 +56,8 @@ export const attendanceSchema = z.object({
 
 export const noticeSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
-  content: z.string().min(10, "Content 10 characters"),
- must be at least  priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
+  content: z.string().min(10, "Content must be at least 10 characters"),
+  priority: z.enum(["low", "normal", "high", "urgent"]).default("normal"),
   category: z.string().min(1, "Category is required").default("general"),
 });
 
