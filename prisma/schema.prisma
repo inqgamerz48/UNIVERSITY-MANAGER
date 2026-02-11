@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  FACULTY
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
+
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password_hash String
+  role          Role      @default(STUDENT)
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  profile       Profile?
+  assignments_faculty  Assignment[]  @relation("FacultyAssignments")
+  submissions   Submission[]
+  attendances   Attendance[]
+  complaints    Complaint[]
+  notices       Notice[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Profile {
+  id            String  @id @default(cuid())
+  user_id       String  @unique
+  full_name     String
+  avatar_url    String?
+  phone         String?
+  department    String?
+  year          String?
+  semester      String?
+  student_id    String?
+  faculty_id    String?
+  bio           String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([student_id])
+  @@index([faculty_id])
+}
+
+model Assignment {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  instructions  String?
+  due_date      DateTime
+  max_grade     Float     @default(100)
+  subject_code  String
+  subject_name  String
+  faculty_id    String
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  faculty       User      @relation("FacultyAssignments", fields: [faculty_id], references: [id])
+  submissions   Submission[]
+
+  @@index([faculty_id])
+  @@index([due_date])
+  @@index([subject_code])
+}
+
+model Submission {
+  id            String    @id @default(cuid())
+  assignment_id String
+  student_id    String
+  file_url      String?
+  content       String?
+  grade         Float?
+  feedback      String?
+  submitted_at  DateTime  @default(now())
+  graded_at     DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  assignment    Assignment @relation(fields: [assignment_id], references: [id], onDelete: Cascade)
+  student       User       @relation(fields: [student_id], references: [id])
+
+  @@unique([assignment_id, student_id])
+  @@index([assignment_id])
+  @@index([student_id])
+}
+
+model Attendance {
+  id            String           @id @default(cuid())
+  student_id    String
+  date          DateTime         @db.Date
+  status        AttendanceStatus
+  subject_code  String
+  marked_by     String
+  created_at    DateTime         @default(now())
+  updated_at    DateTime         @updatedAt
+
+  student       User             @relation(fields: [student_id], references: [id])
+
+  @@unique([student_id, date, subject_code])
+  @@index([student_id])
+  @@index([date])
+  @@index([subject_code])
+}
+
+model Notice {
+  id            String    @id @default(cuid())
+  title         String
+  content       String
+  priority      String    @default("normal")
+  category      String    @default("general")
+  published_by  String
+  is_active     Boolean   @default(true)
+  published_at  DateTime  @default(now())
+  expires_at    DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  publisher     User      @relation(fields: [published_by], references: [id])
+
+  @@index([published_at])
+  @@index([category])
+  @@index([priority])
+}
+
+model Complaint {
+  id            String          @id @default(cuid())
+  student_id    String
+  title         String
+  description   String
+  category      String          @default("general")
+  status        ComplaintStatus @default(PENDING)
+  priority      String          @default("normal")
+  assigned_to   String?
+  resolution    String?
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  resolved_at   DateTime?
+
+  student       User            @relation(fields: [student_id], references: [id])
+
+  @@index([student_id])
+  @@index([status])
+  @@index([category])
+}
+
+model FeeStructure {
+  id            String    @id @default(cuid())
+  name          String
+  amount        Float
+  category      String
+  academic_year String
+  due_date      DateTime
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@index([academic_year])
+  @@index([category])
+}
+
+model FeePayment {
+  id              String    @id @default(cuid())
+  student_id      String
+  fee_id          String
+  amount          Float
+  payment_method  String
+  transaction_id  String?
+  status          String    @default("pending")
+  paid_at         DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  @@index([student_id])
+  @@index([fee_id])
+  @@index([status])
+}
+
+model Subject {
+  id            String    @id @default(cuid())
+  code          String    @unique
+  name          String
+  credits       Int       @default(3)
+  department    String
+  semester      String
+  academic_year String
+  faculty_id    String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@index([code])
+  @@index([department])
+  @@index([faculty_id])
+}

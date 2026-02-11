@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0A0A0A;
+  --color-foreground: #FFFFFF;
+  --color-primary: #D4AF37;
+  --color-primary-foreground: #0A0A0A;
+  --color-secondary: #1A1A1A;
+  --color-secondary-foreground: #E5E7EB;
+  --color-muted: #2A2A2A;
+  --color-muted-foreground: #9CA3AF;
+  --color-accent: #F5E6B3;
+  --color-accent-foreground: #0A0A0A;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #2A2A2A;
+  --color-input: #2A2A2A;
+  --color-ring: #D4AF37;
+  --radius: 0.5rem;
+  
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+  
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-fade-out: fade-out 0.2s ease-out;
+  --animate-slide-in: slide-in 0.3s ease-out;
+  
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+  
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  @keyframes slide-in {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+  
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl;
+  }
+  
+  .gold-gradient {
+    @apply bg-gradient-to-r from-[#F5E6B3] via-[#D4AF37] to-[#B8960F];
+  }
+  
+  .gold-border {
+    @apply border border-[#D4AF37]/50;
+  }
+  
+  .gold-glow {
+    @apply shadow-lg shadow-[#D4AF37]/20;
+  }
+  
+  .gold-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#F5E6B3] via-[#D4AF37] to-[#B8960F];
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+*, ::before, ::after {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--color-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-muted);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #B8960F;
+}
+
+/* Loading spinner */
+.spinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  height: 1.25rem;
+  width: 1.25rem;
+  border: 2px solid #D4AF37;
+  border-top-color: transparent;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
