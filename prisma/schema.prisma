@@ -264,3 +264,72 @@ model Subject {
   @@index([department])
   @@index([faculty_id])
 }
+
+// ============================================
+// RBAC Models
+// ============================================
+
+model Permission {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  name        String
+  description String?
+  category    String    @default("general")
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  roles       RolePermission[]
+
+  @@index([category])
+  @@index([code])
+}
+
+model RolePermission {
+  id            String      @id @default(cuid())
+  role          Role
+  permission_id String
+  created_at    DateTime    @default(now())
+
+  permission    Permission  @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@unique([role, permission_id])
+  @@index([role])
+}
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  user_id     String?
+  action      String
+  entity_type String
+  entity_id   String?
+  old_values  Json?
+  new_values  Json?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime  @default(now())
+
+  user        User?      @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id])
+  @@index([entity_type])
+  @@index([entity_id])
+  @@index([action])
+  @@index([created_at])
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  user_id     String
+  token       String    @unique
+  ip_address  String?
+  user_agent  String?
+  expires_at  DateTime
+  created_at  DateTime  @default(now())
+
+  user        User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([token])
+  @@index([expires_at])
+}

@@ -252,3 +252,74 @@ CREATE OR REPLACE FUNCTION current_institution_id()
 RETURNS uuid AS $$
   SELECT institution_id FROM users WHERE id = auth.uid();
 $$ LANGUAGE sql SECURITY DEFINER;
+
+-- ============================================
+-- Fee Structures (Added for RBAC)
+-- ============================================
+
+ALTER TABLE fee_structures ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view active fee structures" ON fee_structures
+  FOR SELECT USING (is_active = true);
+
+CREATE POLICY "Admins can manage fee structures" ON fee_structures
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
+  );
+
+-- ============================================
+-- Fee Payments (Added for RBAC)
+-- ============================================
+
+ALTER TABLE fee_payments ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Students view own payments" ON fee_payments
+  FOR SELECT USING (student_id = auth.uid());
+
+CREATE POLICY "Admins view all payments" ON fee_payments
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
+  );
+
+CREATE POLICY "Students create own payments" ON fee_payments
+  FOR INSERT WITH CHECK (student_id = auth.uid());
+
+-- ============================================
+-- Subjects (Enhanced for RBAC)
+-- ============================================
+
+CREATE POLICY "Faculty manage assigned subjects" ON subjects
+  FOR ALL USING (faculty_id = auth.uid());
+
+CREATE POLICY "Admins manage all subjects" ON subjects
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role IN ('ADMIN', 'SUPER_ADMIN'))
+  );
+
+-- ============================================
+-- Audit Logs (SUPER_ADMIN only)
+-- ============================================
+
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "SUPER_ADMIN can view audit logs" ON audit_logs
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'SUPER_ADMIN')
+  );
+
+CREATE POLICY "System can create audit logs" ON audit_logs
+  FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+
+-- ============================================
+-- Sessions (User own + Admin manage)
+-- ============================================
+
+ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users manage own sessions" ON sessions
+  FOR ALL USING (user_id = auth.uid());
+
+CREATE POLICY "Admins manage all sessions" ON sessions
+  FOR ALL USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'SUPER_ADMIN')
+  );
