@@ -271,6 +271,9 @@ export function useStudentNotices() {
   return { notices, loading };
 }
 
+// Alias for admin/faculty - same functionality
+export const useNotices = useStudentNotices;
+
 export function useStudentComplaints() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
