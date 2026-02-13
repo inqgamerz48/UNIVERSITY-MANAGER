@@ -3,6 +3,86 @@ import { NextRequest, NextResponse } from "next/server";
 import { hasPermission } from "@/lib/rbac-server";
 import { createAuditLog } from "@/lib/audit";
 
+import { supabaseAdmin } from "@/lib/supabase/admin";
+
+export async function POST(request: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const hasAccess = await hasPermission(user.id, "users:create");
+  if (!hasAccess) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  try {
+    const body = await request.json();
+    const { email, password, full_name, role, pin_number } = body;
+
+    // 1. Create user in Auth (using Service Role)
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name },
+    });
+
+    if (createError) throw createError;
+    if (!newUser.user) throw new Error("Failed to create user");
+
+    // 2. Update Public Users Role (Trigger might have created it, but with default role)
+    // We upsert to be safe in case trigger is slow or fast
+    const { error: userError } = await supabaseAdmin
+      .from("users")
+      .upsert({
+        id: newUser.user.id,
+        email: newUser.user.email!,
+        role: role || "STUDENT",
+        is_active: true
+      });
+
+    if (userError) throw userError;
+
+    // 3. Update Profile (Trigger might have created it)
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .upsert({
+        id: newUser.user.id,
+        full_name,
+        pin_number,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (profileError) throw profileError;
+
+    // 4. If Faculty or Student, create specific record?
+    if (role === 'FACULTY') {
+      await supabaseAdmin.from('faculty').upsert({ user_id: newUser.user.id });
+    } else if (role === 'STUDENT') {
+      // Need branch_id, etc. If not provided, just create empty record
+      await supabaseAdmin.from('students').upsert({
+        user_id: newUser.user.id,
+        pin_number
+      });
+    }
+
+    createAuditLog({
+      action: "create",
+      entity_type: "user",
+      entity_id: newUser.user.id,
+      new_values: { email, role },
+    });
+
+    return NextResponse.json({ user: newUser.user });
+  } catch (error: any) {
+    console.error("Create user error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
 

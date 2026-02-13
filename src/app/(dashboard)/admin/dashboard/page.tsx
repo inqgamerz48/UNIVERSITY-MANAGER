@@ -103,8 +103,8 @@ export default function AdminDashboard() {
                     <p className="text-3xl font-bold">{stat.value}</p>
                   )}
                   <p className={`text-xs ${stat.changeType === "positive" ? "text-green-500" :
-                      stat.changeType === "negative" ? "text-red-500" :
-                        "text-muted-foreground"
+                    stat.changeType === "negative" ? "text-red-500" :
+                      "text-muted-foreground"
                     }`}>
                     {stat.change}
                   </p>
@@ -203,11 +203,12 @@ export default function AdminDashboard() {
               <Button
                 variant="outline"
                 className="h-auto py-4 flex-col items-start space-y-2"
+                onClick={() => router.push("/admin/academics")}
               >
                 <BookOpen className="h-5 w-5 text-blue-500" />
-                <span className="font-medium">View Subjects</span>
+                <span className="font-medium">Manage Academics</span>
                 <span className="text-xs text-muted-foreground">
-                  {stats?.totalSubjects || 0} active subjects
+                  {stats?.totalBranches || 0} depts, {stats?.totalSubjects || 0} subjects
                 </span>
               </Button>
               <Button

@@ -12,8 +12,9 @@ import { Label } from "@/components/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PERMISSIONS, ROLE_HIERARCHY, type Role } from "@/lib/rbac";
 import { createAuditLog } from "@/lib/audit";
-import { Users, Shield, Activity, CheckCircle, XCircle, Search, Filter } from "lucide-react";
+import { Users, Shield, Activity, CheckCircle, XCircle, Search, Filter, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { CreateUserDialog } from "@/components/admin/create-user-dialog";
 
 interface UserWithRole {
   id: string;
@@ -35,6 +36,7 @@ export default function RBACManagementPage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedUser, setSelectedUser] = React.useState<UserWithRole | null>(null);
   const [newRole, setNewRole] = React.useState<Role>("STUDENT");
+  const [showCreateDialog, setShowCreateDialog] = React.useState(false);
 
   React.useEffect(() => {
     fetchData();
@@ -155,6 +157,10 @@ export default function RBACManagementPage() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
+                  <Button className="gold" onClick={() => setShowCreateDialog(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add User
+                  </Button>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
@@ -289,6 +295,11 @@ export default function RBACManagementPage() {
           </TabsContent>
         </Tabs>
       </main>
+      <CreateUserDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onSuccess={fetchData}
+      />
     </div>
   );
 }
