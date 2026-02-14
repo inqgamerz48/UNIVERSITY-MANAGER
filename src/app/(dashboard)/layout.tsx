@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAuthStore } from "@/stores/auth-store";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { DashboardSkeleton } from "@/components/ui/loading-states";
 
 export default function DashboardLayout({
   children,
@@ -24,9 +25,7 @@ export default function DashboardLayout({
 
   if (!initialized) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold-500"></div>
-      </div>
+      <DashboardSkeleton />
     );
   }
 

@@ -62,29 +62,37 @@ export function LoginForm() {
       toast({ title: "Success", description: "Welcome back!" });
 
       if (data.user) {
-        const { data: userData } = await supabase
-          .from("users")
-          .select("role")
-          .eq("id", data.user.id)
-          .single();
+        // Fetch role from DB if not in metadata
+        let role = data.user.user_metadata?.role;
+        let fullName = data.user.user_metadata?.full_name;
 
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("user_id", data.user.id)
-          .single();
+        if (!role) {
+          const { data: userData } = await supabase
+            .from("users")
+            .select("role")
+            .eq("id", data.user.id)
+            .single();
+          role = userData?.role || "STUDENT";
+        }
 
-        const role = userData?.role || "STUDENT";
-        
-        setUser({
+        if (!fullName) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("user_id", data.user.id)
+            .single();
+          fullName = profile?.full_name || "User";
+        }
+
+        // Set state BEFORE redirect
+        await setUser({
           id: data.user.id,
           email: data.user.email || "",
           role: role as any,
-          fullName: profile?.full_name || "User",
+          fullName: fullName,
         });
 
         let redirectPath = "/student/dashboard";
-
         if (role === "FACULTY") redirectPath = "/faculty/dashboard";
         else if (role === "ADMIN" || role === "SUPER_ADMIN") redirectPath = "/admin/dashboard";
 
