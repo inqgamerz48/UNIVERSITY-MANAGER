@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     // 1. Create user in Auth (using Service Role)
     const adminClient = getAdminClient();
-    console.log("[CREATE USER] Creating auth user...");
+    console.log("[CREATE USER] Creating auth user...", email);
     
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
       email,
@@ -65,26 +65,52 @@ export async function POST(request: NextRequest) {
       user_metadata: { full_name },
     });
 
-    console.log("[CREATE USER] Auth user created", { createError, newUser });
+    console.log("[CREATE USER] Auth response", { createError: createError?.message, newUser });
 
-    if (createError) throw createError;
-    if (!newUser.user) throw new Error("Failed to create user");
+    // Handle "email already exists" error - just throw a clearer message
+    if (createError) {
+      if (createError.message?.includes('email_exists') || (createError as any).status === 422) {
+        throw new Error("A user with this email address has already been registered");
+      }
+      throw createError;
+    }
+
+    if (!newUser?.user) throw new Error("Failed to create user");
 
     // 2. Update Public Users Role
+    // Note: password_hash is required but we can't get it from Auth. 
+    // Using placeholder - in production, use Supabase trigger
     console.log("[CREATE USER] Upserting user record...");
     const { error: userUpsertError } = await adminClient
       .from("users")
       .upsert({
         id: newUser.user.id,
         email: newUser.user.email!,
+        password_hash: "managed_by_supabase_auth",
         role: role || "STUDENT",
         is_active: true,
         institution_id
-      });
+      }, { onConflict: 'id', ignoreDuplicates: true });
 
     console.log("[CREATE USER] User upsert done", { userUpsertError });
 
-    if (userUpsertError) throw userUpsertError;
+    if (userUpsertError) {
+      // Try insert instead if upsert fails
+      console.log("[CREATE USER] Upsert failed, trying insert...", userUpsertError);
+      const { error: insertError } = await adminClient
+        .from("users")
+        .insert({
+          id: newUser.user.id,
+          email: newUser.user.email!,
+          password_hash: "managed_by_supabase_auth",
+          role: role || "STUDENT",
+          is_active: true,
+          institution_id
+        });
+      if (insertError && !insertError.message.includes('duplicate')) {
+        throw insertError;
+      }
+    }
 
     // 3. Update Profile
     console.log("[CREATE USER] Upserting profile...");
@@ -95,7 +121,7 @@ export async function POST(request: NextRequest) {
         full_name,
         pin_number,
         updated_at: new Date().toISOString(),
-      });
+      }, { onConflict: 'user_id', ignoreDuplicates: true });
 
     console.log("[CREATE USER] Profile upsert done", { profileError });
 
