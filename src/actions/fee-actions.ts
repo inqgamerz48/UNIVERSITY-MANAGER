@@ -215,3 +215,45 @@ export async function recordPayment(feeId: string, studentPin: string, method: s
     revalidatePath("/student/fees");
     return { success: true };
 }
+
+export async function payStudentFee(paymentId: string, method: string) {
+    const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    // Check if payment belongs to student
+    const { data: student } = await supabase
+        .from("students")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+    if (!student) return { error: "Student record not found" };
+
+    const { data: payment } = await supabase
+        .from("fee_payments")
+        .select("id, student_id")
+        .eq("id", paymentId)
+        .single();
+
+    if (!payment || payment.student_id !== student.id) {
+        return { error: "Invalid payment record" };
+    }
+
+    // Process "Mock" Payment
+    const { error } = await supabase
+        .from("fee_payments")
+        .update({
+            status: "PAID",
+            payment_method: method,
+            paid_at: new Date().toISOString(),
+            transaction_id: `ONLINE-${Date.now()}`
+        })
+        .eq("id", paymentId);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/student/fees");
+    return { success: true };
+}

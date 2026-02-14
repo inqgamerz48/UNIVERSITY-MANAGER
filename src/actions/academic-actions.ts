@@ -15,25 +15,25 @@ export async function createBranch(data: {
     description?: string;
     duration_semesters: number;
 }) {
-    console.log("[createBranch] Starting...", data);
+
     try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
-        console.log("[createBranch] User:", user?.id);
+
 
         if (!user) return { success: false, error: "Unauthorized" };
 
         // Check if Admin and get institution_id
         const adminClient = getAdminClient();
-        console.log("[createBranch] Got admin client");
-        
+
+
         const { data: userData, error: userError } = await adminClient
             .from('users')
             .select('role, institution_id')
             .eq('id', user.id)
             .single();
 
-        console.log("[createBranch] UserData:", { userData, userError });
+
 
         if (userError || !userData) {
             return { success: false, error: "User not found" };
@@ -47,15 +47,15 @@ export async function createBranch(data: {
             return { success: false, error: "No institution assigned to admin. Contact super admin." };
         }
 
-        console.log("[createBranch] Inserting branch...", { ...data, institution_id: userData.institution_id });
-        
+
+
         const { error } = await adminClient.from("branches").insert([{
             ...data,
             institution_id: userData.institution_id,
             is_active: true
         }]);
 
-        console.log("[createBranch] Branch insert result:", error);
+
 
         if (error) {
             console.error("Supabase Error:", error);
@@ -69,7 +69,7 @@ export async function createBranch(data: {
             new_values: data,
         });
 
-        console.log("[createBranch] SUCCESS!");
+
         return { success: true };
     } catch (error: any) {
         console.error("Create branch error:", error);

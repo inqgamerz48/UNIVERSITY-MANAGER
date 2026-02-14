@@ -44,8 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fullName = profile?.full_name;
       }
 
-      // Default to STUDENT/User if still missing
-      role = role || "STUDENT";
+      // 3. Fallback and auditing
+      if (!role) {
+        console.error("CRITICAL: User has no role assigned. Defaulting to STUDENT. User ID:", session.user.id);
+        role = "STUDENT";
+      }
+
       fullName = fullName || session.user.email?.split('@')[0] || "User";
 
       setUser({

@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { Toaster } from "@/components/Toaster";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,9 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </QueryProvider>
         <Toaster />
       </body>
     </html>

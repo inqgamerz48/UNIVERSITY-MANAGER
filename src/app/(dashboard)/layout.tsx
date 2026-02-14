@@ -17,11 +17,12 @@ export default function DashboardLayout({
   const { user, initialized } = useAuthStore();
   const supabase = createClient();
 
-  useEffect(() => {
-    if (initialized && !user) {
-      router.push("/login");
-    }
-  }, [user, initialized, router]);
+  // Middleware handles auth redirection, so we don't need this client-side check which causes race conditions
+  // useEffect(() => {
+  //   if (initialized && !user) {
+  //     router.push("/login");
+  //   }
+  // }, [user, initialized, router]);
 
   if (!initialized) {
     return (

@@ -4,17 +4,14 @@ import { createAuditLog } from "@/lib/audit";
 import { getAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
-  console.log("[CREATE USER] Starting...");
-  
+
   try {
     const supabase = await createClient();
-    console.log("[CREATE USER] Got supabase client");
-    
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log("[CREATE USER] Auth check done", { userId: user?.id, authError });
+
 
     if (authError || !user) {
-      console.log("[CREATE USER] Unauthorized");
+
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -25,21 +22,21 @@ export async function POST(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    console.log("[CREATE USER] User data", { userData, roleError });
+
 
     if (roleError || !userData) {
-      console.log("[CREATE USER] User not found in DB");
+
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     if (userData.role !== "ADMIN" && userData.role !== "SUPER_ADMIN") {
-      console.log("[CREATE USER] Not admin", { role: userData.role });
+
       return NextResponse.json({ error: "Forbidden: Admin only" }, { status: 403 });
     }
 
     const body = await request.json();
-    console.log("[CREATE USER] Body received", { role: body.role, email: body.email });
-    
+
+
     const { email, password, full_name, role, pin_number, branch_id, admission_year } = body;
 
     // Validate required fields
@@ -48,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const institution_id = userData.institution_id;
-    console.log("[CREATE USER] Institution ID", institution_id);
+
 
     if (!institution_id) {
       return NextResponse.json({ error: "Admin has no institution assigned. Please contact super admin." }, { status: 400 });
@@ -56,8 +53,8 @@ export async function POST(request: NextRequest) {
 
     // 1. Create user in Auth (using Service Role)
     const adminClient = getAdminClient();
-    console.log("[CREATE USER] Creating auth user...", email);
-    
+
+
     const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
       email,
       password,
@@ -65,7 +62,7 @@ export async function POST(request: NextRequest) {
       user_metadata: { full_name },
     });
 
-    console.log("[CREATE USER] Auth response", { createError: createError?.message, newUser });
+
 
     // Handle "email already exists" error - just throw a clearer message
     if (createError) {
@@ -80,7 +77,7 @@ export async function POST(request: NextRequest) {
     // 2. Update Public Users Role
     // Note: password_hash is required but we can't get it from Auth. 
     // Using placeholder - in production, use Supabase trigger
-    console.log("[CREATE USER] Upserting user record...");
+
     const { error: userUpsertError } = await adminClient
       .from("users")
       .upsert({
@@ -92,11 +89,11 @@ export async function POST(request: NextRequest) {
         institution_id
       }, { onConflict: 'id', ignoreDuplicates: true });
 
-    console.log("[CREATE USER] User upsert done", { userUpsertError });
+
 
     if (userUpsertError) {
       // Try insert instead if upsert fails
-      console.log("[CREATE USER] Upsert failed, trying insert...", userUpsertError);
+
       const { error: insertError } = await adminClient
         .from("users")
         .insert({
@@ -113,7 +110,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Update Profile
-    console.log("[CREATE USER] Upserting profile...", newUser.user.id);
+
     const { error: profileError } = await adminClient
       .from("profiles")
       .upsert({
@@ -124,23 +121,23 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id', ignoreDuplicates: true });
 
-    console.log("[CREATE USER] Profile upsert done", { profileError });
+
 
     if (profileError) throw profileError;
 
     // 4. If Faculty or Student, create specific record
     if (role === 'FACULTY') {
-      console.log("[CREATE USER] Creating faculty record...");
+
       const { error: facultyError } = await adminClient.from('faculty').upsert({
         user_id: newUser.user.id,
         institution_id,
         employee_id: pin_number || `EMP-${Date.now()}`,
         branch_id: branch_id || null
       }, { onConflict: 'user_id', ignoreDuplicates: true });
-      console.log("[CREATE USER] Faculty created", { facultyError });
+
       if (facultyError) throw facultyError;
     } else if (role === 'STUDENT') {
-      console.log("[CREATE USER] Creating student record...", { branch_id, admission_year });
+
       if (!branch_id || !admission_year) {
         throw new Error("Branch and Admission Year are required for Students");
       }
@@ -153,7 +150,7 @@ export async function POST(request: NextRequest) {
         academic_year: "YEAR_1",
         current_semester: "SEM_1"
       }, { onConflict: 'user_id', ignoreDuplicates: true });
-      console.log("[CREATE USER] Student created", { studentError });
+
       if (studentError) throw studentError;
     }
 
@@ -164,7 +161,7 @@ export async function POST(request: NextRequest) {
       new_values: { email, role },
     });
 
-    console.log("[CREATE USER] SUCCESS!");
+
     return NextResponse.json({ user: newUser.user, message: "User created successfully" });
   } catch (error: any) {
     console.error("[CREATE USER] ERROR:", error);

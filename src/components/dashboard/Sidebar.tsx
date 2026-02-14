@@ -26,6 +26,7 @@ import {
     X,
     ChevronLeft,
     Building,
+    FileText,
 } from "lucide-react";
 
 interface NavItem {
@@ -90,6 +91,12 @@ const NAV_ITEMS: NavItem[] = [
         href: "/fees",
         icon: DollarSign,
         roles: ["SUPER_ADMIN", "ADMIN", "STUDENT"],
+    },
+    {
+        label: "Reports",
+        href: "/admin/reports",
+        icon: FileText,
+        roles: ["SUPER_ADMIN", "ADMIN"],
     },
     {
         label: "Settings",

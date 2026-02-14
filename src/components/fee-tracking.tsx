@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DollarSign, Calendar, CheckCircle, Clock, AlertTriangle, Plus, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
@@ -290,10 +291,53 @@ export function FeeTracking() {
                   </div>
                   <div className="flex gap-2">
                     {payment.status === "PENDING" && (
-                      <Button className="gold">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Pay Now
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button className="gold">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Pay Now
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Make Payment</DialogTitle>
+                            <DialogDescription>
+                              Pay for {payment.fee_structure?.name}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="py-4 space-y-4">
+                            <div className="p-4 bg-muted rounded-lg space-y-2">
+                              <div className="flex justify-between">
+                                <span>Amount:</span>
+                                <span className="font-bold">₹{payment.amount.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Due Date:</span>
+                                <span>{formatDate(payment.due_date)}</span>
+                              </div>
+                            </div>
+
+                            <div className="bg-yellow-500/10 p-3 rounded text-sm text-yellow-600 border border-yellow-500/20">
+                              <strong>Demo Mode:</strong> This is a simulation. No actual money will be deducted.
+                            </div>
+                          </div>
+                          <DialogFooter className="gap-2 sm:gap-0">
+                            <Button variant="outline" onClick={() => { }}>Cancel</Button>
+                            <Button className="gold" onClick={async () => {
+                              const { payStudentFee } = await import("@/actions/fee-actions");
+                              const res = await payStudentFee(payment.id, "ONLINE");
+                              if (res.success) {
+                                toast({ title: "Payment Successful", description: "Fee marked as paid." });
+                                window.location.reload();
+                              } else {
+                                toast({ title: "Error", description: res.error, variant: "destructive" });
+                              }
+                            }}>
+                              Simulate Successful Payment
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     )}
                     {payment.status === "PAID" && (
                       <Button variant="outline" size="sm" onClick={() => generateReceipt(payment)}>

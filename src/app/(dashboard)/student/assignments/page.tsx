@@ -188,10 +188,18 @@ export default function StudentAssignmentsPage() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
-              <label className="text-sm font-medium mb-1 block">Your Response</label>
+              <label className="text-sm font-medium mb-1 block">Submission Link (Google Drive / Docs)</label>
+              <input
+                type="url"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mb-4"
+                placeholder="https://docs.google.com/..."
+                value={submitContent.startsWith("http") ? submitContent : ""}
+                onChange={(e) => setSubmitContent(e.target.value)}
+              />
+              <label className="text-sm font-medium mb-1 block">Or Text Response</label>
               <textarea
                 className="flex min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={submitContent}
+                value={!submitContent.startsWith("http") ? submitContent : ""}
                 onChange={(e) => setSubmitContent(e.target.value)}
                 placeholder="Enter your submission..."
               />

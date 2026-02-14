@@ -15,6 +15,7 @@ import { createAuditLog } from "@/lib/audit";
 import { Users, Shield, Activity, CheckCircle, XCircle, Search, Filter, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { CreateUserDialog } from "@/components/admin/create-user-dialog";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 interface UserWithRole {
   id: string;
@@ -69,7 +70,7 @@ export default function RBACManagementPage() {
     if (!selectedUser) return;
 
     try {
-      const response = await fetch(`/api/admin/users/${selectedUser.id}/role`, {
+      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: newRole }),
@@ -106,200 +107,229 @@ export default function RBACManagementPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center">
-              <span className="text-black font-bold">U</span>
+    <ErrorBoundary>
+      <div className="min-h-screen bg-background">
+        {/* ... existing RBAC page content ... */}
+        <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center">
+                <span className="text-black font-bold">U</span>
+              </div>
+              <span className="font-bold text-lg">RBAC Management</span>
             </div>
-            <span className="font-bold text-lg">RBAC Management</span>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold gold-text mb-2">Role-Based Access Control</h1>
-          <p className="text-muted-foreground">Manage user roles and permissions</p>
-        </div>
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold gold-text mb-2">Role-Based Access Control</h1>
+            <p className="text-muted-foreground">Manage user roles and permissions</p>
+          </div>
 
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList>
-            <TabsTrigger value="users">
-              <Users className="h-4 w-4 mr-2" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="permissions">
-              <Shield className="h-4 w-4 mr-2" />
-              Permissions
-            </TabsTrigger>
-            <TabsTrigger value="activity">
-              <Activity className="h-4 w-4 mr-2" />
-              Activity Log
-            </TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="users" className="w-full">
+            <TabsList>
+              <TabsTrigger value="users">
+                <Users className="h-4 w-4 mr-2" />
+                Users
+              </TabsTrigger>
+              <TabsTrigger value="permissions">
+                <Shield className="h-4 w-4 mr-2" />
+                Permissions
+              </TabsTrigger>
+              <TabsTrigger value="activity">
+                <Activity className="h-4 w-4 mr-2" />
+                Activity Log
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="users" className="mt-6">
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>User Role Management</CardTitle>
-                <CardDescription>View and manage user roles</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search users..."
-                      className="pl-10"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+            <TabsContent value="users" className="mt-6">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>User Role Management</CardTitle>
+                  <CardDescription>View and manage user roles</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search users..."
+                        className="pl-10"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <Button className="gold" onClick={() => setShowCreateDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add User
+                    </Button>
                   </div>
-                  <Button className="gold" onClick={() => setShowCreateDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add User
-                  </Button>
-                </div>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-                  {stats.map((stat) => (
-                    <div key={stat.role} className="p-4 rounded-lg bg-muted/50">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">{stat.role}</span>
-                        <Badge className={roleColors[stat.role as Role]}>{stat.count}</Badge>
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+                    {stats.map((stat) => (
+                      <div key={stat.role} className="p-4 rounded-lg bg-muted/50">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">{stat.role}</span>
+                          <Badge className={roleColors[stat.role as Role]}>{stat.count}</Badge>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.full_name || "N/A"}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <Badge className={roleColors[user.role as Role]}>{user.role}</Badge>
-                        </TableCell>
-                        <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => {
-                                setSelectedUser(user);
-                                setNewRole(user.role);
-                              }}>
-                                Edit Role
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Update User Role</DialogTitle>
-                                <DialogDescription>
-                                  Change role for {user.email}
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                  <Label>Current Role</Label>
-                                  <Badge className={roleColors[user.role as Role]}>{user.role}</Badge>
-                                </div>
-                                <div className="space-y-2">
-                                  <Label>New Role</Label>
-                                  <Select value={newRole} onValueChange={(v) => setNewRole(v as Role)}>
-                                    <SelectTrigger>
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="STUDENT">Student</SelectItem>
-                                      <SelectItem value="FACULTY">Faculty</SelectItem>
-                                      <SelectItem value="ADMIN">Admin</SelectItem>
-                                      <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                                {ROLE_HIERARCHY[newRole]?.length > 0 && (
-                                  <div className="p-3 rounded-lg bg-muted/50">
-                                    <p className="text-sm font-medium mb-1">Inherits from:</p>
-                                    <div className="flex gap-2">
-                                      {ROLE_HIERARCHY[newRole].map((role) => (
-                                        <Badge key={role} variant="outline">{role}</Badge>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              <DialogFooter>
-                                <Button variant="outline" onClick={() => setSelectedUser(null)}>Cancel</Button>
-                                <Button className="gold" onClick={updateUserRole}>Update Role</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </TableCell>
-                      </TableRow>
                     ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </div>
 
-          <TabsContent value="permissions" className="mt-6">
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>Permission Matrix</CardTitle>
-                <CardDescription>View all permissions by category</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {Object.entries(PERMISSIONS).map(([code, perm]) => (
-                    <div key={code} className="p-4 rounded-lg border border-border">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="outline">{perm.category}</Badge>
-                        <code className="text-xs text-muted-foreground">{code}</code>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {isLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="h-24">
+                            <div className="flex justify-center items-center w-full">
+                              <div className="space-y-4 w-full">
+                                <div className="flex items-center justify-between">
+                                  <div className="h-8 w-[200px] bg-muted/50 rounded animate-pulse" />
+                                  <div className="h-8 w-[100px] bg-muted/50 rounded animate-pulse" />
+                                </div>
+                                <div className="space-y-2">
+                                  {[1, 2, 3, 4, 5].map((i) => (
+                                    <div key={i} className="h-12 w-full bg-muted/20 rounded animate-pulse" />
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : filteredUsers.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="h-24 text-center">
+                            No users found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredUsers.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell className="font-medium">{user.full_name || "N/A"}</TableCell>
+                            <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              <Badge className={roleColors[user.role as Role]}>{user.role}</Badge>
+                            </TableCell>
+                            <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm" onClick={() => {
+                                    setSelectedUser(user);
+                                    setNewRole(user.role);
+                                  }}>
+                                    Edit Role
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Update User Role</DialogTitle>
+                                    <DialogDescription>
+                                      Change role for {user.email}
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                      <Label>Current Role</Label>
+                                      <Badge className={roleColors[user.role as Role]}>{user.role}</Badge>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label>New Role</Label>
+                                      <Select value={newRole} onValueChange={(v) => setNewRole(v as Role)}>
+                                        <SelectTrigger>
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="STUDENT">Student</SelectItem>
+                                          <SelectItem value="FACULTY">Faculty</SelectItem>
+                                          <SelectItem value="ADMIN">Admin</SelectItem>
+                                          <SelectItem value="SUPER_ADMIN">Super Admin</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    {ROLE_HIERARCHY[newRole]?.length > 0 && (
+                                      <div className="p-3 rounded-lg bg-muted/50">
+                                        <p className="text-sm font-medium mb-1">Inherits from:</p>
+                                        <div className="flex gap-2">
+                                          {ROLE_HIERARCHY[newRole].map((role) => (
+                                            <Badge key={role} variant="outline">{role}</Badge>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <DialogFooter>
+                                    <Button variant="outline" onClick={() => setSelectedUser(null)}>Cancel</Button>
+                                    <Button className="gold" onClick={updateUserRole}>Update Role</Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="permissions" className="mt-6">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Permission Matrix</CardTitle>
+                  <CardDescription>View all permissions by category</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {Object.entries(PERMISSIONS).map(([code, perm]) => (
+                      <div key={code} className="p-4 rounded-lg border border-border">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant="outline">{perm.category}</Badge>
+                          <code className="text-xs text-muted-foreground">{code}</code>
+                        </div>
+                        <h4 className="font-medium mb-1">{perm.name}</h4>
+                        <p className="text-sm text-muted-foreground">{perm.description}</p>
                       </div>
-                      <h4 className="font-medium mb-1">{perm.name}</h4>
-                      <p className="text-sm text-muted-foreground">{perm.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="activity" className="mt-6">
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>View audit logs and user activity</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="p-8 text-center text-muted-foreground">
-                  <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Activity logs will be displayed here</p>
-                  <p className="text-sm">Enable audit logging to track user actions</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
-      <CreateUserDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onSuccess={fetchData}
-      />
-    </div>
+            <TabsContent value="activity" className="mt-6">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                  <CardDescription>View audit logs and user activity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="p-8 text-center text-muted-foreground">
+                    <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>Activity logs will be displayed here</p>
+                    <p className="text-sm">Enable audit logging to track user actions</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </main>
+        <CreateUserDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onSuccess={fetchData}
+        />
+      </div>
+    </ErrorBoundary>
   );
 }

@@ -103,18 +103,18 @@ export function useAdminStats() {
     async function fetchStats() {
       try {
         setLoading(true);
-        
-        const [usersRes, studentsRes, facultyRes, branchesRes, 
-                subjectsRes, complaintsRes, attendanceRes, assignmentsRes] = await Promise.all([
-          supabase.from("users").select("id", { count: "exact" }).neq("role", "SUPER_ADMIN"),
-          supabase.from("students").select("id", { count: "exact" }),
-          supabase.from("faculty").select("id", { count: "exact" }),
-          supabase.from("branches").select("id", { count: "exact" }),
-          supabase.from("subjects").select("id", { count: "exact" }).eq("is_active", true),
-          supabase.from("complaints").select("id", { count: "exact" }).eq("status", "PENDING"),
-          supabase.from("attendance").select("id", { count: "exact" }).gte("date", new Date().toISOString().split('T')[0]),
-          supabase.from("assignments").select("id", { count: "exact" }).eq("is_active", true),
-        ]);
+
+        const [usersRes, studentsRes, facultyRes, branchesRes,
+          subjectsRes, complaintsRes, attendanceRes, assignmentsRes] = await Promise.all([
+            supabase.from("users").select("id", { count: "exact" }).neq("role", "SUPER_ADMIN"),
+            supabase.from("students").select("id", { count: "exact" }),
+            supabase.from("faculty").select("id", { count: "exact" }),
+            supabase.from("branches").select("id", { count: "exact" }),
+            supabase.from("subjects").select("id", { count: "exact" }).eq("is_active", true),
+            supabase.from("complaints").select("id", { count: "exact" }).eq("status", "PENDING"),
+            supabase.from("attendance").select("id", { count: "exact" }).gte("date", new Date().toISOString().split('T')[0]),
+            supabase.from("assignments").select("id", { count: "exact" }).eq("is_active", true),
+          ]);
 
         setStats({
           totalUsers: usersRes.count || 0,
@@ -667,58 +667,54 @@ export function useRoleStats() {
 // General Hooks
 // ============================================
 
+import { useQuery } from "@tanstack/react-query";
+
 export function useBranches() {
-  const [branches, setBranches] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
-  useEffect(() => {
-    async function fetchBranches() {
-      const { data } = await supabase
+  const { data, isLoading } = useQuery({
+    queryKey: ["branches"],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from("branches")
         .select("*")
         .eq("is_active", true)
         .order("name");
 
-      setBranches(data || []);
-      setLoading(false);
+      if (error) throw error;
+      return data as any[];
     }
+  });
 
-    fetchBranches();
-  }, [supabase]);
-
-  return { branches, loading };
+  return { branches: data || [], loading: isLoading };
 }
 
 export function useSubjects(branchId?: string) {
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
-  useEffect(() => {
-    async function fetchSubjects() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["subjects", branchId],
+    queryFn: async () => {
       let query = supabase
         .from("subjects")
         .select(`
-          *,
-          branch:branches(name, course_type),
-          faculty:users(profiles(full_name))
-        `)
+            *,
+            branch:branches(name, course_type),
+            faculty:users(profiles(full_name))
+          `)
         .eq("is_active", true);
 
       if (branchId) {
         query = query.eq("branch_id", branchId);
       }
 
-      const { data } = await query;
-      setSubjects(data || []);
-      setLoading(false);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as any[];
     }
+  });
 
-    fetchSubjects();
-  }, [supabase, branchId]);
-
-  return { subjects, loading };
+  return { subjects: data || [], loading: isLoading };
 }
 
 // ============================================

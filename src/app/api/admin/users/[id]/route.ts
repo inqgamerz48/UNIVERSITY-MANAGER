@@ -16,7 +16,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await hasPermission(user.id, "users:read");
+    const hasAccess = await hasRole(user.id, ["ADMIN", "SUPER_ADMIN"]);
     if (!hasAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -71,10 +71,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const canManageUsers = await hasPermission(user.id, "users:write");
-    const canAssignRoles = await hasPermission(user.id, "users:roles");
+    const canManageUsers = await hasRole(user.id, ["ADMIN", "SUPER_ADMIN"]);
+    // const canAssignRoles = await hasPermission(user.id, "users:roles"); // Deprecated for now due to empty table
 
-    if (!canManageUsers && !canAssignRoles) {
+    if (!canManageUsers) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -93,8 +93,9 @@ export async function PATCH(
     }
 
     if (role && role !== currentUser.role) {
-      if (!canAssignRoles) {
-        return NextResponse.json({ error: "Cannot modify roles without users:roles permission" }, { status: 403 });
+      // Role assignment is allowed for Admins now
+      if (!canManageUsers) {
+        return NextResponse.json({ error: "Cannot modify roles without admin privileges" }, { status: 403 });
       }
 
       const isDemotingSuperAdmin = currentUser.role === "SUPER_ADMIN" && role !== "SUPER_ADMIN";
@@ -145,7 +146,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await hasPermission(user.id, "users:write");
+    const hasAccess = await hasRole(user.id, ["ADMIN", "SUPER_ADMIN"]);
     if (!hasAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
